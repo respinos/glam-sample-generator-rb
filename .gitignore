@@ -1,3 +1,6 @@
+# don't assume we're keeping everything
+/data/
+
 *.gem
 *.rbc
 /.config
