@@ -324,9 +324,9 @@ builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
 xml = builder.mets :structMap, "xmlns:mets" => "http://www.loc.gov/METS/v2" do |x|
   x.mets :div, :TYPE => "folio" do
     records.each_with_index do |record, idx|
-      mdids = [ source_md.system_identifier ]
+      mdids = [ "_" + source_md.system_identifier ]
       record_mdref_map[record[:m_iid]].each do |mdref|
-        mdids << mdref.system_identifier
+        mdids << "_" + mdref.system_identifier
       end
       x.mets :div, :TYPE => "sheet", :ORDER => idx + 1, :ORDERLABEL => idx + 1, :MDID => mdids.join(" ") do      
         if record[:istruct_ms] == "P"

@@ -2,11 +2,11 @@
   "id": "info:root/sclib.9015078576785/structure.xml",
   "parent": "info:root/sclib.9015078576785",
   "interactionModel": "urn:glam:mets",
-  "contentSize": 341,
+  "contentSize": 344,
   "mimeType": "application/mets+xml",
   "filename": "structure.xml",
   "digests": [
-    "urn:sha-512:9c165362728b26e41f9cae6d5167b6599a5da8f03b691d7c6265381024c353f90bd19eacc1309e0e93acb194054ff00890b3bf039a56db3a1a8bea7d4ebb44b2"
+    "urn:sha-512:a5f56163f12cfe1d29ba5cf6d8b37f47c0862f45b269d438559bdb570c0d3865c83d31552dc6304e8795b4fe7586331b0d004ddf4ad9f12bab90d21476e18bb0"
   ],
   "lastModifiedDate": "2023-09-06T16:20:48-04:00",
   "lastModifiedBy": "dlxsadm",
