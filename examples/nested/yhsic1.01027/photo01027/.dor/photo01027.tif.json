@@ -1,6 +1,7 @@
 {
   "id": "info:root/yhsic1.01027/photo01027/photo01027.tif",
-  "parent": "info:root/yhsic1.01027",
+  "parent": "info:root/yhsic1.01027/photo01027",
+  "systemIdentifier": "019cc518-27a6-734d-b683-14f2c88752eb",
   "interactionModel": "urn:glam:file",
   "contentSize": 114555,
   "mimeType": "image/tiff",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "photo01027/photo01027.tif",
+  "contentPath": "photo01027.tif",
   "headersVersion": "1.0.draft"
 }

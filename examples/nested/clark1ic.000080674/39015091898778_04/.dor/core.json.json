@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_04/core.json",
-  "parent": "info:root/clark1ic.000080674",
+  "parent": "info:root/clark1ic.000080674/39015091898778_04",
+  "systemIdentifier": "019cc517-fba4-7a48-abf4-64a428cc4747",
   "interactionModel": "urn:glam:metadata:service",
   "contentSize": 0,
   "mimeType": "application/dc+json",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "39015091898778_04/core.json",
+  "contentPath": "core.json",
   "headersVersion": "1.0.draft"
 }

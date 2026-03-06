@@ -1,6 +1,7 @@
 {
   "id": "info:root/tinder.28855/tinder-rppc-057709/tinder-rppc-057709.tif~desc.json",
-  "parent": "info:root/tinder.28855",
+  "parent": "info:root/tinder.28855/tinder-rppc-057709",
+  "systemIdentifier": "019cc517-d290-77a5-a105-8455799e11f0",
   "interactionModel": "urn:glam:use",
   "contentSize": 60,
   "mimeType": "application/use+json",

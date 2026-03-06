@@ -1,6 +1,7 @@
 {
   "id": "info:root/yhsic1.01027/photo01027/photo01027.tif",
-  "parent": "info:root/yhsic1.01027",
+  "parent": "info:root/yhsic1.01027/photo01027",
+  "systemIdentifier": "019cc517-ebe8-7157-ab9f-41a0a04088d3",
   "interactionModel": "urn:glam:file",
   "contentSize": 114555,
   "mimeType": "image/tiff",

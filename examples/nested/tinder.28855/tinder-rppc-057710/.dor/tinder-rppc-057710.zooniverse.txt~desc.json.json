@@ -1,6 +1,7 @@
 {
   "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.zooniverse.txt~desc.json",
-  "parent": "info:root/tinder.28855",
+  "parent": "info:root/tinder.28855/tinder-rppc-057710",
+  "systemIdentifier": "019cc518-1455-7f91-a710-766381dda7d2",
   "interactionModel": "urn:glam:use",
   "contentSize": 65,
   "mimeType": "application/use+json",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "tinder-rppc-057710/tinder-rppc-057710.zooniverse.txt~desc.json",
+  "contentPath": "tinder-rppc-057710.zooniverse.txt~desc.json",
   "headersVersion": "1.0.draft"
 }

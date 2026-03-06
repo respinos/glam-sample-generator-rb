@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_04/39015091898778_04.tif~md.mix.xml",
-  "parent": "info:root/clark1ic.000080674",
+  "parent": "info:root/clark1ic.000080674/39015091898778_04",
+  "systemIdentifier": "019cc517-be72-7852-9641-de9e358b3d05",
   "interactionModel": "urn:glam:metadata",
   "contentSize": 3160,
   "mimeType": "application/mix+xml",

@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_04/39015091898778_04.tif",
-  "parent": "info:root/clark1ic.000080674",
+  "parent": "info:root/clark1ic.000080674/39015091898778_04",
+  "systemIdentifier": "019cc517-fba4-715b-a514-93804509d285",
   "interactionModel": "urn:glam:file",
   "contentSize": 77710,
   "mimeType": "image/tiff",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "39015091898778_04/39015091898778_04.tif",
+  "contentPath": "39015091898778_04.tif",
   "headersVersion": "1.0.draft"
 }

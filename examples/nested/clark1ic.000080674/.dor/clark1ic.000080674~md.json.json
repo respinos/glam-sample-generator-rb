@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/clark1ic.000080674~md.json",
   "parent": "info:root/clark1ic.000080674",
+  "systemIdentifier": "019cc517-f5c2-7a36-9aae-e3b6c9cbbeba",
   "interactionModel": "urn:glam:metadata:clark1ic",
   "contentSize": 2009,
   "mimeType": "application/glam+json",

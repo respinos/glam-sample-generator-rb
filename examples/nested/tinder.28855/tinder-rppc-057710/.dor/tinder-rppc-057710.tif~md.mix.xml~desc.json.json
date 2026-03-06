@@ -1,6 +1,7 @@
 {
   "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.tif~md.mix.xml~desc.json",
-  "parent": "info:root/tinder.28855",
+  "parent": "info:root/tinder.28855/tinder-rppc-057710",
+  "systemIdentifier": "019cc518-12fc-751d-9234-f44050655248",
   "interactionModel": "urn:glam:use",
   "contentSize": 43,
   "mimeType": "application/use+json",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "tinder-rppc-057710/tinder-rppc-057710.tif~md.mix.xml~desc.json",
+  "contentPath": "tinder-rppc-057710.tif~md.mix.xml~desc.json",
   "headersVersion": "1.0.draft"
 }

@@ -1,12 +1,13 @@
 {
   "id": "info:root/yhsic1.01027/structure.xml",
   "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "019cc517-ebda-71a9-b01a-5a1fd331c634",
   "interactionModel": "urn:glam:mets",
   "contentSize": 449,
   "mimeType": "application/mets+xml",
   "filename": "structure.xml",
   "digests": [
-    "urn:sha-512:f38b364bf7b0a8d8e798b534aae41c99545818ee90ca0885bac7def34ff1848383f1fa8b372d5010d36d44d392834929b44b299e087717a1a716db9864805e30"
+    "urn:sha-512:ce5896ce384d626bf1c30146152d160b8d8c02d97e28527a8c24a68accb0c773db7d721a111f86fb1a60deda45adda1688595ad2ba298900deb82ec8f6771a63"
   ],
   "lastModifiedDate": "2025-10-28T16:21:47-04:00",
   "lastModifiedBy": "dlxsadm",

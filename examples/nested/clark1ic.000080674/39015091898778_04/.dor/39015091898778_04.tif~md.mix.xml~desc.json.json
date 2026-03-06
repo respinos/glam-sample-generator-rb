@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_04/39015091898778_04.tif~md.mix.xml~desc.json",
-  "parent": "info:root/clark1ic.000080674",
+  "parent": "info:root/clark1ic.000080674/39015091898778_04",
+  "systemIdentifier": "019cc517-fd56-72b5-bd5f-9cf9596cad0b",
   "interactionModel": "urn:glam:use",
   "contentSize": 43,
   "mimeType": "application/use+json",
@@ -12,6 +13,6 @@
   "lastModifiedBy": "dlxsadm",
   "deleted": false,
   "visibility": "public",
-  "contentPath": "39015091898778_04/39015091898778_04.tif~md.mix.xml~desc.json",
+  "contentPath": "39015091898778_04.tif~md.mix.xml~desc.json",
   "headersVersion": "1.0.draft"
 }

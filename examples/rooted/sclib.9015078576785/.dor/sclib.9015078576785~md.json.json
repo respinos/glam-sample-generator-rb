@@ -1,6 +1,7 @@
 {
   "id": "info:root/sclib.9015078576785/sclib.9015078576785~md.json",
   "parent": "info:root/sclib.9015078576785",
+  "systemIdentifier": "019cc517-cab3-72d1-82b6-b61f4684c704",
   "interactionModel": "urn:glam:metadata:sclib",
   "contentSize": 1976,
   "mimeType": "application/glam+json",

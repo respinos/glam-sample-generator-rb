@@ -1,6 +1,7 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_03/39015091898778_03.tif",
-  "parent": "info:root/clark1ic.000080674",
+  "parent": "info:root/clark1ic.000080674/39015091898778_03",
+  "systemIdentifier": "019cc517-bc8e-78cd-9d2f-b26140b12460",
   "interactionModel": "urn:glam:file",
   "contentSize": 76162,
   "mimeType": "image/tiff",

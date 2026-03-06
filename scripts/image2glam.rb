@@ -451,9 +451,11 @@ generated_files.each do |resource_file|
   STDERR.puts ":: processing #{resource_file.filename}"
   output_filename = resource_file.header_path(options.rooted)
   File.open(output_filename, "w") do |f|
+    parent_id = File.join(["info:root", $local_identifier, File.dirname(resource_file.filename)].grep_v(/^\.$/))
     datum = {}
     datum["id"] = "info:root/#{$local_identifier}/#{resource_file.filename}"
-    datum["parent"] = "info:root/#{$local_identifier}"
+    datum["parent"] = parent_id
+    datum["systemIdentifier"] = resource_file.system_identifier
     datum["interactionModel"] = resource_file.interactionModel
     datum["contentSize"] = File.size(resource_file.resource_path)
     datum["mimeType"] = resource_file.mimeType
@@ -463,7 +465,7 @@ generated_files.each do |resource_file|
     datum["lastModifiedBy"] = "dlxsadm"
     datum["deleted"] = false
     datum["visibility"] = "public"
-    datum["contentPath"] = resource_file.filename
+    datum["contentPath"] = options.rooted ? resource_file.filename : File.basename(resource_file.filename)
     datum["headersVersion"] = "1.0.draft"
 
     f.write(JSON.pretty_generate(datum))

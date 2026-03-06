@@ -1,6 +1,7 @@
 {
   "id": "info:root/tinder.28855/tinder-rppc-057709/tinder-rppc-057709.tif~md.mix.xml",
-  "parent": "info:root/tinder.28855",
+  "parent": "info:root/tinder.28855/tinder-rppc-057709",
+  "systemIdentifier": "019cc517-d296-767e-8ddd-48bb8f98aef1",
   "interactionModel": "urn:glam:metadata",
   "contentSize": 3158,
   "mimeType": "application/mix+xml",

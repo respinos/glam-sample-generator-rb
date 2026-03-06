@@ -1,6 +1,7 @@
 {
   "id": "info:root/yhsic1.01027/yhsic1.01027~md.json",
   "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "019cc517-ebb1-729d-b26f-fd483a30b039",
   "interactionModel": "urn:glam:metadata:yhsic1",
   "contentSize": 824,
   "mimeType": "application/glam+json",
