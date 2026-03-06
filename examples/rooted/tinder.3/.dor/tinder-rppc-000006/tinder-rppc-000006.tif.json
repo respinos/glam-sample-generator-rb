@@ -1,0 +1,17 @@
+{
+  "id": "info:root/tinder.3/tinder-rppc-000006/tinder-rppc-000006.tif",
+  "parent": "info:root/tinder.3",
+  "interactionModel": "urn:glam:file",
+  "contentSize": 83056,
+  "mimeType": "image/tiff",
+  "filename": "tinder-rppc-000006/tinder-rppc-000006.tif",
+  "digests": [
+    "urn:sha-512:da182c2bf826621f151de030bd9c8aaaf9d25bed29449db7465c8ade5b55d5defa71041085b269250e2b246404a2f73674988e04df291baa3483be6055c65768"
+  ],
+  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "tinder-rppc-000006/tinder-rppc-000006.tif",
+  "headersVersion": "1.0.draft"
+}

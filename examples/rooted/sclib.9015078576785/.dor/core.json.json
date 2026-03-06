@@ -1,0 +1,17 @@
+{
+  "id": "info:root/sclib.9015078576785/core.json",
+  "parent": "info:root/sclib.9015078576785",
+  "interactionModel": "urn:glam:metadata:service",
+  "contentSize": 1018,
+  "mimeType": "application/dc+json",
+  "filename": "core.json",
+  "digests": [
+    "urn:sha-512:57f106d029ffa6b7d4da1ee6440e08bbdac932e434c596526a399f2a978145e4cb6272b621cbdbcc8c344dead89bfc19afedef2e121c9176259e1325d04826e2"
+  ],
+  "lastModifiedDate": "2023-09-06T16:20:48-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "core.json",
+  "headersVersion": "1.0.draft"
+}

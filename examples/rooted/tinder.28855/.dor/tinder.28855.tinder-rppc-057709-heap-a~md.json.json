@@ -1,0 +1,17 @@
+{
+  "id": "info:root/tinder.28855/tinder.28855.tinder-rppc-057709-heap-a~md.json",
+  "parent": "info:root/tinder.28855",
+  "interactionModel": "urn:glam:metadata:tinder",
+  "contentSize": 244,
+  "mimeType": "application/glam+json",
+  "filename": "tinder.28855.tinder-rppc-057709-heap-a~md.json",
+  "digests": [
+    "urn:sha-512:a1167ecdf371461c4830e0e82bee54018e8874a480de2b8dbeea4e0ed53b9ce90ab21169b6d02f2d8e32cbd74f50095a2a80fcbe5c77e98fcc6248750caa0ff9"
+  ],
+  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "tinder.28855.tinder-rppc-057709-heap-a~md.json",
+  "headersVersion": "1.0.draft"
+}

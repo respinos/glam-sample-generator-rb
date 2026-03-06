@@ -1,5 +1,6 @@
 # don't assume we're keeping everything
 /data/
+/examples/
 
 *.gem
 *.rbc

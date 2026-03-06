@@ -1,0 +1,17 @@
+{
+  "id": "info:root/yhsic1.01027/yhsic1.01027.photo01027-heap-a~md.json",
+  "parent": "info:root/yhsic1.01027",
+  "interactionModel": "urn:glam:metadata:yhsic1",
+  "contentSize": 231,
+  "mimeType": "application/glam+json",
+  "filename": "yhsic1.01027.photo01027-heap-a~md.json",
+  "digests": [
+    "urn:sha-512:5cab5ccdfb789fe4d5a77766e9c7edaef04fa37603d0ec3e416e8322bf3d15bfa36888de934f2d26a9ddd0eb3c12433d905120d7165c871e9f05cc6deacb4f40"
+  ],
+  "lastModifiedDate": "2025-10-28T16:21:47-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "yhsic1.01027.photo01027-heap-a~md.json",
+  "headersVersion": "1.0.draft"
+}

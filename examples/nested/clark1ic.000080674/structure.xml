@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
+  <mets:div TYPE="folio">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9bd7-73e5-9f5b-bc5e7f601bb4 019cc4ef-9c11-70e9-851e-332beb6c3ead">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_01"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="2" ORDERLABEL="2" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9bdf-7632-aa9b-286c8ccac4a1 019cc4ef-9c1a-7b57-9e15-1d2bcded7e9f">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_02"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="3" ORDERLABEL="3" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9be9-7875-a17d-0bf0a2c15642 019cc4ef-9c22-7aff-bbb3-af4ba8051719">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_03"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="4" ORDERLABEL="4" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9bf1-7866-9ab5-96ed6e976449 019cc4ef-9c2b-7eb1-b650-2141488d97dd">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_04"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="5" ORDERLABEL="5" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9bfa-7015-ad5c-678c16adb52d 019cc4ef-9c33-729c-be71-071528c205e5">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_05"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="6" ORDERLABEL="6" MDID="019cc4ef-9bcc-7162-82b4-e7fd2feba557 019cc4ef-9c03-7073-8a75-e8263d58ebce 019cc4ef-9c3b-7db9-81d5-0a9641bc6f6c">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="clark1ic.000080674/39015091898778_06"/>
+      </mets:div>
+    </mets:div>
+  </mets:div>
+</mets:structMap>

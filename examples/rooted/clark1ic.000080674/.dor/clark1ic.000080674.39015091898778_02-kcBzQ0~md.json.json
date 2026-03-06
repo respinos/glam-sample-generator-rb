@@ -1,0 +1,17 @@
+{
+  "id": "info:root/clark1ic.000080674/clark1ic.000080674.39015091898778_02-kcBzQ0~md.json",
+  "parent": "info:root/clark1ic.000080674",
+  "interactionModel": "urn:glam:metadata:clark1ic",
+  "contentSize": 305,
+  "mimeType": "application/glam+json",
+  "filename": "clark1ic.000080674.39015091898778_02-kcBzQ0~md.json",
+  "digests": [
+    "urn:sha-512:8fe2b91ce721bede038ca78a36405c4e0632ad03e365a366cce8cb2aa00ecf3b055cde7475a46aaabd95e790253be36a39de3025d70bf4e2bf377e266114e2e8"
+  ],
+  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "clark1ic.000080674.39015091898778_02-kcBzQ0~md.json",
+  "headersVersion": "1.0.draft"
+}

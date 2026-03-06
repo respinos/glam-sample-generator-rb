@@ -1,0 +1,17 @@
+{
+  "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.tif~md.mix.xml~desc.json",
+  "parent": "info:root/tinder.28855",
+  "interactionModel": "urn:glam:use",
+  "contentSize": 43,
+  "mimeType": "application/use+json",
+  "filename": "tinder-rppc-057710/tinder-rppc-057710.tif~md.mix.xml~desc.json",
+  "digests": [
+    "urn:sha-512:855d721d3e714ecf2dfec9633615580935629a2e51f43ce76fc595304f963244748a15b43f41f4f5cddcc95e02f0a35a33bb14e1820583411e7945c9784cd267"
+  ],
+  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "tinder-rppc-057710/tinder-rppc-057710.tif~md.mix.xml~desc.json",
+  "headersVersion": "1.0.draft"
+}

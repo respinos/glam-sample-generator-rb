@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
+  <mets:div TYPE="folio">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="019cc4ef-034c-7e5b-bf18-8b83e22808da 019cc4ef-0356-725c-848d-10b25196842f 019cc4ef-0363-77ec-9a65-6380c0c7df04">
+    </mets:div>
+  </mets:div>
+</mets:structMap>

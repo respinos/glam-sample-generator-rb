@@ -1,0 +1,17 @@
+{
+  "id": "info:root/clark1ic.000080674/39015091898778_03/39015091898778_03.tif~desc.json",
+  "parent": "info:root/clark1ic.000080674",
+  "interactionModel": "urn:glam:use",
+  "contentSize": 60,
+  "mimeType": "application/use+json",
+  "filename": "39015091898778_03/39015091898778_03.tif~desc.json",
+  "digests": [
+    "urn:sha-512:3f49c346c3884c99d500af457b9fcd312fa41af54f1f554ad5f06f42ff09005f5ccd3f489dc0dba3418ecf8b5305d0a39e444f9229597b26b2ebace5ac4b1dd3"
+  ],
+  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "39015091898778_03/39015091898778_03.tif~desc.json",
+  "headersVersion": "1.0.draft"
+}

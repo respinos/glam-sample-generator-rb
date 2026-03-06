@@ -1,0 +1,6 @@
+{
+  "use": [
+    "function:source",
+    "format:text-plain"
+  ]
+}

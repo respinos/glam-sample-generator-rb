@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
+  <mets:div TYPE="folio">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="019cc4ed-4dba-7b1f-9ba7-e5a9462fde66 019cc4ed-4dc4-7bfa-bbc0-a9d330945f6c 019cc4ed-4ddb-72ce-a50d-e887bec9b9c2">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="tinder.3/tinder-rppc-000005"/>
+      </mets:div>
+    </mets:div>
+    <mets:div TYPE="sheet" ORDER="2" ORDERLABEL="2" MDID="019cc4ed-4dba-7b1f-9ba7-e5a9462fde66 019cc4ed-4dcd-776d-b69d-3479db916b40 019cc4ed-4de4-7241-bbe1-667ba555ce00">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="tinder.3/tinder-rppc-000006"/>
+      </mets:div>
+    </mets:div>
+  </mets:div>
+</mets:structMap>

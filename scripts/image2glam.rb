@@ -11,8 +11,45 @@ require 'digest'
 require 'pp'
 require 'builder'
 require 'nokogiri'
+require 'open3'
+require 'debug'
+require 'tty-command'
+require 'uuid7'
+
+ResourceFile = Struct.new(:filename, :use, :interactionModel, :mimeType, keyword_init: true) do
+  attr_reader :system_identifier
+  def initialize(*args)
+    super(*args)
+    @system_identifier = UUID7.generate
+    # self.resource_path ||= $resource_path
+    # self.system_path ||= $header_path
+  end
+
+  def resource_path
+    File.join($resource_path, filename)
+  end
+
+  def header_path(rooted)
+    if rooted
+      File.join($header_path, "#{filename}.json")
+    else
+      File.join($resource_path, File.dirname(filename), ".dor", "#{File.basename(filename)}.json")
+    end
+  end
+  
+  def desc
+    self.class.new(
+      filename: "#{filename}~desc.json",
+      use: use,
+      interactionModel: "urn:glam:use",
+      mimeType: "application/use+json"
+    )
+  end
+end
 
 Random.srand(1001)
+
+cmd = TTY::Command.new(printer: :null)
 
 DC_MAP = {}
 DC_MAP["dc_ri"] = "dc.rights"
@@ -35,7 +72,7 @@ db = Sequel.connect(:adapter=>'mysql2', :host=>config['mysql']['host'], :databas
 db.extension :select_remove
 
 options = OpenStruct.new()
-options.headers_mode = "root"
+options.rooted = true
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
@@ -47,8 +84,8 @@ OptionParser.new do |opts|
   opts.on("--m_iid M_IID", "m_iid") do |c|
     options.m_iid = c
   end
-  opts.on("--mode MODE", "headers mode") do |c|
-    options.headers_mode = c
+  opts.on("--[no-]rooted", "rooted mode") do |v|
+    options.rooted = v
   end
 end.parse!
 
@@ -99,69 +136,38 @@ def _field2map(s)
   mapping
 end
 
-def write_description(filename, description)
-  description_path = "#{filename}~desc.json"
-  File.open(File.join(@resource_path, description_path), "w") do |f|
-    f.write(JSON.pretty_generate(description))
+def write_description(desc)
+  File.open(desc.resource_path, "w") do |f|
+    f.write(JSON.pretty_generate({ use: desc.use }))
   end
-  @header_metadata[description_path] = {"interactionModel" => "urn:glam:use", "mimeType" => "application/use+json"}
-  description_path
+  desc
 end
 
-# 1x1 Black Pixel TIFF Generator (Dependency-Free)
-def generate_black_tiff(filename = "black_1x1.tif")
-  # Header: Little Endian (II), Version (42), Offset to first IFD (8)
-  header = ["II", 42, 8].pack("A2vV")
-
-  # IFD: Number of directory entries (9 tags for a basic valid TIFF)
-  ifd_entries = 9
-  
-  # Tags: [Tag ID, Type, Count, Value/Offset]
-  # Types: 3 = Short (16-bit), 4 = Long (32-bit)
-  tags = [
-    [0x0100, 3, 1, 1],      # ImageWidth: 1
-    [0x0101, 3, 1, 1],      # ImageLength: 1
-    [0x0102, 3, 1, 1],      # BitsPerSample: 1
-    [0x0103, 3, 1, 1],      # Compression: 1 (No compression)
-    [0x0106, 3, 1, 1],      # PhotometricInterpretation: 1 (Black is Zero)
-    [0x0111, 4, 1, 122],    # StripOffsets: Pointer to pixel data (Header + IFD + NextOffset = 122)
-    [0x0115, 3, 1, 1],      # SamplesPerPixel: 1
-    [0x0116, 4, 1, 1],      # RowsPerStrip: 1
-    [0x0117, 4, 1, 1]       # StripByteCounts: 1 byte
-  ]
-
-  # Pack the IFD
-  ifd_data = [ifd_entries].pack("v")
-  tags.each { |t| ifd_data << t.pack("vvVV") }
-  ifd_data << [0].pack("V") # Next IFD Offset (0 = End of chain)
-
-  # Pixel Data: 1 byte containing 1 bit of '0' (Black) padded with 0s
-  pixel_data = [0b00000000].pack("C")
-
-  File.open(filename, "wb") do |f|
-    f.write(header)
-    f.write(ifd_data)
-    f.write(pixel_data)
-  end
-end
-
+# 1. fetch the collection configuration
 collection = db.fetch("SELECT * FROM ImageClass a JOIN Collection b ON a.collid = b.collid AND a.userid = b.userid WHERE a.collid = ? AND a.userid = 'dlxsadm'", options.collid).first
 admin_map = _field2map(collection[:field_admin_maps])
 xcoll_map = _field2map(collection[:field_xcoll_maps])
 if xcoll_map["dc_ri"].nil? and ! xcoll_map["dlxs_ri"].nil?
   xcoll_map["dc_ri"] = xcoll_map["dlxs_ri"]
 end
+if xcoll_map["dc_ti"].nil? and ! xcoll_map["dlxs_ma"].nil?
+  xcoll_map["dc_ti"] = xcoll_map["dlxs_ma"]
+end
 data_table = collection[:data_table]
 media_table = collection[:media_table]
 
+# 2. fetch a realistic updated_at
 table_metadata = db.fetch("SELECT * FROM information_schema.tables WHERE table_schema = ? AND table_name = ?", 'dlxs', data_table).first
-updated_at = table_metadata[:UPDATE_TIME]
+$updated_at = table_metadata[:UPDATE_TIME]
+
+# 3. fetch the folio metadata for the folio
 record = {}
 row = db[data_table.to_sym].select_remove(:dlxs_sha).where(ic_id: options.m_id).first
 row.keys.each do |k|
   record[k.downcase.to_sym] = row[k]
 end
 
+# fetch the folio and sheet metadata
 records = []
 db[data_table.to_sym].join(media_table.to_sym, m_id: :ic_id).where(ic_id: options.m_id).order(:istruct_x, :istruct_y).all.each do |row|
   record = {}
@@ -175,16 +181,15 @@ db[data_table.to_sym].join(media_table.to_sym, m_id: :ic_id).where(ic_id: option
 end
 
 # make the record path
-local_identifier = "#{options.collid}.#{options.m_id}"
-resource_path = "data/#{local_identifier}"
-if File.exist?(resource_path)
-  FileUtils.rm_rf(resource_path)
+$output_path = options.rooted ? "examples/rooted" : "examples/nested"
+$local_identifier = "#{options.collid}.#{options.m_id}"
+$resource_path = "#{$output_path}/#{$local_identifier}"
+if File.exist?($resource_path)
+  FileUtils.rm_rf($resource_path)
 end
-FileUtils.mkdir_p("data/#{local_identifier}/.dor")
-@resource_path = resource_path
-system_path = "#{resource_path}/.dor"
-source_md_path = "#{local_identifier}-#{nanoid()}~md.json"
-core_path = "core.json"
+FileUtils.mkdir_p("#{$resource_path}/.dor")
+$resource_path = $resource_path
+$header_path = "#{$resource_path}/.dor"
 
 SKIP_FIELDS = [
   :ic_id, 
@@ -210,9 +215,9 @@ SKIP_FIELDS = [
 
 # write the record metadata: skip the ic_vi and ic_fn fields
 
-@header_metadata = {}
 generated_files = []
-File.open(File.join(resource_path, source_md_path), "w") do |f|
+source_md = ResourceFile.new(filename: "#{$local_identifier}~md.json", use: ["function:source"], interactionModel: "urn:glam:metadata:#{options.collid}", mimeType: "application/glam+json")
+File.open(source_md.resource_path, "w") do |f|
   datum = {}
   record.each do |k, v|
     next if SKIP_FIELDS.include?(k)
@@ -224,25 +229,22 @@ File.open(File.join(resource_path, source_md_path), "w") do |f|
     if admin_map["ic_fn"].include?(k.to_s)
       next
     end
-    if admin_map["iiif_plaintext"].include?(k.to_s)
+    if admin_map['iiif_plaintext'] && admin_map["iiif_plaintext"].include?(k.to_s)
       next
     end
     datum[k] = v.is_a?(String) ? v.split('|||') : v
   end
   f.write(JSON.pretty_generate(datum))
 end
-generated_files << source_md_path
-@header_metadata[source_md_path] = {"interactionModel" => "urn:glam:metadata:#{options.collid}", "mimeType" => "application/glam+json"}
-generated_files << write_description(source_md_path, {"use" => ["function:source",]})
+generated_files << source_md
+generated_files << write_description(source_md.desc)
 
 record_mdref_map = {}
 records.each do |record|
-  record_mdref_map[record[:m_iid]] = []
-end
-records.each do |record|
-  vi_md_path = "#{local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json"
-  record_mdref_map[record[:m_iid]] << vi_md_path
-  File.open(File.join(resource_path, vi_md_path), "w") do |f|
+  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", use: ["function:source"], interactionModel: "urn:glam:metadata:#{options.collid}", mimeType: "application/glam+json")
+  record_mdref_map[record[:m_iid]] ||= []
+  record_mdref_map[record[:m_iid]] << vi_md
+  File.open(vi_md.resource_path, "w") do |f|
     datum = {}
     record.each do |k, v|
       next if SKIP_FIELDS.include?(k)
@@ -253,12 +255,12 @@ records.each do |record|
     end
     f.write(JSON.pretty_generate(datum))
   end  
-  generated_files << vi_md_path
-  @header_metadata[vi_md_path] = {"interactionModel" => "urn:glam:metadata:#{options.collid}", "mimeType" => "application/glam+json"}
-  generated_files << write_description(vi_md_path, {"use" => ["function:source"]})
+  generated_files << vi_md
+  generated_files << write_description(vi_md.desc)
 end
 
-File.open(File.join(resource_path, core_path), "w") do |f|
+core_md = ResourceFile.new(filename: "core.json", use: ["function:service"], interactionModel: "urn:glam:metadata:service", mimeType: "application/dc+json")
+File.open(core_md.resource_path, "w") do |f|
   rights_statement = if xcoll_map["dc_ri"]["_"].nil?
     value = []
     xcoll_map["dc_ri"].keys.each do |fld|
@@ -269,7 +271,7 @@ File.open(File.join(resource_path, core_path), "w") do |f|
     xcoll_map["dc_ri"]["_"][1..-2]
   end
   datum = {
-    "id": local_identifier,
+    "id": $local_identifier,
     "stakeholderId": options.collid,
     "rightsStatement": rights_statement,
     "metadata": {}
@@ -282,17 +284,17 @@ File.open(File.join(resource_path, core_path), "w") do |f|
       value << record[fld.to_sym] unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
     end
     dc_k = DC_MAP[k]
+    STDERR.puts "?? #{dc_k} :: #{k}"
     datum[:metadata][dc_k] = [value] unless value.empty?
   end
   f.write(JSON.pretty_generate(datum))
 end
-generated_files << core_path
-@header_metadata[core_path] = {"interactionModel" => "urn:glam:metadata:service", "mimeType" => "application/dc+json"}
+generated_files << core_md
 
 records.each do |record|
-  vi_md_path = "#{local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json"
-  record_mdref_map[record[:m_iid]] << vi_md_path
-  File.open(File.join(resource_path, vi_md_path), "w") do |f|
+  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", use: ["function:service"], interactionModel: "urn:glam:metadata:#{options.collid}", mimeType: "application/dc+json")
+  record_mdref_map[record[:m_iid]] << vi_md
+  File.open(vi_md.resource_path, "w") do |f|
     datum = {}
     xcoll_map.each do |k, v|
       next unless k.start_with?("dc_")
@@ -312,32 +314,34 @@ records.each do |record|
     end
     f.write(JSON.pretty_generate(datum))
   end
-  generated_files << vi_md_path
-  @header_metadata[vi_md_path] = {"interactionModel" => "urn:glam:metadata:service", "mimeType" => "application/dc+json"}
-  generated_files << write_description(vi_md_path, {"use" => ["function:service"]})
+  generated_files << vi_md
+  generated_files << write_description(vi_md.desc)
 end
 
-
+structure_file = ResourceFile.new(filename: "structure.xml", use: ["function:structure"], interactionModel: "urn:glam:mets", mimeType: "application/mets+xml")
 builder = Builder::XmlMarkup.new(:indent => 2)
 builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
 xml = builder.mets :structMap, "xmlns:mets" => "http://www.loc.gov/METS/v2" do |x|
   x.mets :div, :TYPE => "folio" do
     records.each_with_index do |record, idx|
-      x.mets :div, :TYPE => "sheet", :ORDER => idx + 1, :ORDERLABEL => idx + 1, :MDID => "#{source_md_path} #{record_mdref_map[record[:m_iid]].join(" ")}" do      
+      mdids = [ source_md.system_identifier ]
+      record_mdref_map[record[:m_iid]].each do |mdref|
+        mdids << mdref.system_identifier
+      end
+      x.mets :div, :TYPE => "sheet", :ORDER => idx + 1, :ORDERLABEL => idx + 1, :MDID => mdids.join(" ") do      
         if record[:istruct_ms] == "P"
           x.mets :div, :TYPE => "canvas" do
-            x.mets :mptr, :LOCATION => "#{local_identifier}/#{record[:m_fn]}"
+            x.mets :mptr, :LOCATION => "#{$local_identifier}/#{record[:m_fn]}"
           end
         end
       end
     end
   end
 end
-File.open(File.join(resource_path, "structure.xml"), "w") do |f|
+File.open(structure_file.resource_path, "w") do |f|
   f.write(xml)
 end
-generated_files << "structure.xml"
-@header_metadata["structure.xml"] = {"interactionModel" => "urn:glam:mets", "mimeType" => "application/mets+xml"}
+generated_files << structure_file
 
 records.each_with_index do |record, record_index|
   puts "== WTF #{record[:m_id]} :: #{record[:istruct_ms]}"
@@ -352,41 +356,53 @@ records.each_with_index do |record, record_index|
     )
 
     fileset_identifier = asset[:basename].downcase
-    FileUtils.mkdir_p(File.join(resource_path, fileset_identifier))
-    if options.headers_mode == 'resource'
-      FileUtils.mkdir_p(File.join(resource_path, fileset_identifier, '.dor'))
-      STDERR.puts ":: created #{File.join(resource_path, fileset_identifier, '.dor')}"
-    else
-      FileUtils.mkdir_p(File.join(system_path, fileset_identifier))
-    end
+    image_file = ResourceFile.new(filename: "#{fileset_identifier}/#{record[:m_fn]}.tif", use: ["function:source", "format:image"], interactionModel: "urn:glam:file", mimeType: "image/tiff")
+    core_md = ResourceFile.new(filename: "#{fileset_identifier}/core.json", use: ["function:service"], interactionModel: "urn:glam:metadata:service", mimeType: "application/dc+json")  
+
+    FileUtils.mkdir_p(File.dirname(image_file.resource_path))
+    FileUtils.mkdir_p(File.dirname(image_file.header_path(options.rooted)))
     # 1. make fileset_identifier/core.json
-    File.open(File.join(resource_path, fileset_identifier, "core.json"), "w") do |f|
+    File.open(core_md.resource_path, "w") do |f|
       JSON.pretty_generate({})
     end
-    generated_files << File.join(fileset_identifier, "core.json")
-    @header_metadata[File.join(fileset_identifier, "core.json")] = {"interactionModel" => "urn:glam:metadata:service", "mimeType" => "application/dc+json"}
+    generated_files << core_md
 
     # 2. make fileset_identifier/m_fn.tif
-    generate_black_tiff(File.join(resource_path, fileset_identifier, "#{record[:m_fn]}.tif"))
-    generated_files << File.join(fileset_identifier, "#{record[:m_fn]}.tif")
-    @header_metadata[File.join(fileset_identifier, "#{record[:m_fn]}.tif")] = {"interactionModel" => "urn:glam:file", "mimeType" => "image/tiff"}
+    out, status = Open3.pipeline([
+      'kdu_expand', 
+      '-i', 
+      asset_path,
+      '-o',
+      image_file.resource_path,
+      '-reduce', asset[:levels].to_s
+    ])
+
+    generated_files << image_file
 
     # 3. make fileset_identifier/m_fn.tif~desc.json
-    generated_files << write_description(File.join(fileset_identifier, "#{record[:m_fn]}.tif"), {"use" => ["function:source", "format:image"]})
+    generated_files << write_description(image_file.desc)
 
     # 4. make fileset_identifier/m_fn.tif-NNNN~md.mix.xml
     mix_filename = "#{record[:m_fn]}.tif~md.mix.xml"
-    doc = File.open(file_mets_xml) { |f| 
-      Nokogiri::XML(f) { |config| config.default_xml.noblanks }
-    }
-    mix_el = doc.at_xpath("//mix:mix")
-    File.open(File.join(resource_path, fileset_identifier, mix_filename), "w") do |f|
-      f.write(mix_el.to_xml(indent: 2, encoding: 'UTF-8'))
+    mix_file = ResourceFile.new(filename: "#{fileset_identifier}/#{mix_filename}", use: ["function:technical"], interactionModel: "urn:glam:metadata", mimeType: "application/mix+xml")
+    out, status = cmd.run(
+      'jhove',
+      '-c', 'etc/jhove.conf',
+      '-h', 'xml',
+      image_file.resource_path
+    )
+
+    doc = Nokogiri::XML(out.to_s) { |config| config.default_xml.noblanks }
+    # jhove_mix_el = doc.at_xpath("//jhove:property[name='NisoImageMetadata']/jhove:values[@type='NISOImageMetadata']/jhove:value/node()", 'jhove' => 'http://hul.harvard.edu/ois/xml/ns/jhove')
+    # jhove_mix_el = doc.at_xpath("//jhove:jhove", 'jhove' => 'http://hul.harvard.edu/ois/xml/ns/jhove')
+    jhove_mix_el = doc.at_xpath('//mix:mix', 'mix' => 'http://www.loc.gov/mix/v20')
+    File.open(mix_file.resource_path, "w") do |f|
+      f.write(jhove_mix_el.to_xml(indent: 2, encoding: 'UTF-8'))
     end
-    @header_metadata[File.join(fileset_identifier, mix_filename)] = {"interactionModel" => "urn:glam:metadata", "mimeType" => "application/xml"}
-    generated_files << File.join(fileset_identifier, mix_filename)
+
+    generated_files << mix_file
     # 5. make fileset_identifier/m_fn.tif-NNNN~md.mix.xml~desc.json
-    generated_files << write_description(File.join(fileset_identifier, mix_filename), {"use" => ["function:technical"]})
+    generated_files << write_description(mix_file.desc)
 
     next if admin_map["iiif_plaintext"].nil?
     plaintext_flds = []
@@ -396,7 +412,8 @@ records.each_with_index do |record, record_index|
       plaintext_flds << key
     end
     text_filename = "#{record[:m_fn]}.zooniverse.txt"
-    File.open(File.join(resource_path, fileset_identifier, text_filename), "w") do |f|
+    text_file = ResourceFile.new(filename: "#{fileset_identifier}/#{text_filename}", use: ["function:source", "format:text-plain"], interactionModel: "urn:glam:file", mimeType: "text/plain")
+    File.open(text_file.resource_path, "w") do |f|
       values = []
       plaintext_flds.each do |fld|
         value = record[fld.to_sym]
@@ -405,45 +422,48 @@ records.each_with_index do |record, record_index|
       values.flatten!
       f.write(values.join("\n"))
     end
-    if File.size(File.join(resource_path, fileset_identifier, text_filename)) == 0
-      FileUtils.rm(File.join(resource_path, fileset_identifier, text_filename))
+    if File.size(text_file.resource_path) == 0
+      FileUtils.rm(text_file.resource_path)
       next
     end
-    generated_files << File.join(fileset_identifier, text_filename)
-    @header_metadata[File.join(fileset_identifier, text_filename)] = {"interactionModel" => "urn:glam:file", "mimeType" => "text/plain"}
-    generated_files << write_description(File.join(fileset_identifier, text_filename), {"use" => ["function:source", "format:text-plain"]})
+    generated_files << text_file
+    generated_files << write_description(text_file.desc)
 
-    
-    `jhove -c etc/jhove.conf -h xml -m UTF8-hul #{File.join(resource_path, fileset_identifier, text_filename)} > #{File.join(resource_path, fileset_identifier, "#{text_filename}~md.textmd.xml")}`
-    @header_metadata[File.join(fileset_identifier, "#{text_filename}~md.textmd.xml")] = {"interactionModel" => "urn:glam:file", "mimeType" => "application/textmd+xml"}
+    text_md_file = ResourceFile.new(filename: "#{fileset_identifier}/#{text_filename}~md.textmd.xml", use: ["function:technical"], interactionModel: "urn:glam:metadata", mimeType: "application/textmd+xml")
+    out, status = cmd.run(
+      'jhove',
+      '-c', 'etc/jhove.conf',
+      '-h', 'xml',
+      '-m', 'UTF8-hul',
+      text_file.resource_path
+    )
+    doc = Nokogiri::XML(out.to_s) { |config| config.default_xml.noblanks }
+    jhove_textmd_el = doc.at_xpath('//textmd:textMD', 'textmd' => 'info:lc/xmlns/textMD-v3')
+    File.open(text_md_file.resource_path, "w") do |f|
+      f.write(jhove_textmd_el.to_xml(indent: 2, encoding: 'UTF-8'))
+    end
+    generated_files << text_file
+    generated_files << write_description(text_file.desc)
   end
 end
 
-generated_files.each do |filename|
-  STDERR.puts ":: processing #{filename}"
-  output_filename = File.join(system_path, "#{filename}.json")
-  if filename.include?("/")
-    output_filename = File.join(
-      resource_path,
-      File.dirname(filename),
-      ".dor",
-      "#{File.basename(filename)}.json"
-    )
-  end
+generated_files.each do |resource_file|
+  STDERR.puts ":: processing #{resource_file.filename}"
+  output_filename = resource_file.header_path(options.rooted)
   File.open(output_filename, "w") do |f|
     datum = {}
-    datum["id"] = "info:root/#{local_identifier}/#{filename}"
-    datum["parent"] = "info:root/#{local_identifier}"
-    datum["interactionModel"] = @header_metadata[filename]['interactionModel']
-    datum["contentSize"] = File.size(File.join(resource_path, filename))
-    datum["mimeType"] = @header_metadata[filename]['mimeType']
-    datum["filename"] = filename
-    datum["digests"] = ["urn:sha-512:#{calculate_sha512(File.join(resource_path, filename))}"]
-    datum["lastModifiedDate"] = updated_at.iso8601
+    datum["id"] = "info:root/#{$local_identifier}/#{resource_file.filename}"
+    datum["parent"] = "info:root/#{$local_identifier}"
+    datum["interactionModel"] = resource_file.interactionModel
+    datum["contentSize"] = File.size(resource_file.resource_path)
+    datum["mimeType"] = resource_file.mimeType
+    datum["filename"] = resource_file.filename
+    datum["digests"] = ["urn:sha-512:#{calculate_sha512(resource_file.resource_path)}"]
+    datum["lastModifiedDate"] = $updated_at.iso8601
     datum["lastModifiedBy"] = "dlxsadm"
     datum["deleted"] = false
     datum["visibility"] = "public"
-    datum["contentPath"] = filename
+    datum["contentPath"] = resource_file.filename
     datum["headersVersion"] = "1.0.draft"
 
     f.write(JSON.pretty_generate(datum))

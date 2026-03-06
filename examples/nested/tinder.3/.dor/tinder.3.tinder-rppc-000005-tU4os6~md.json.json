@@ -1,0 +1,17 @@
+{
+  "id": "info:root/tinder.3/tinder.3.tinder-rppc-000005-tU4os6~md.json",
+  "parent": "info:root/tinder.3",
+  "interactionModel": "urn:glam:metadata:tinder",
+  "contentSize": 72,
+  "mimeType": "application/dc+json",
+  "filename": "tinder.3.tinder-rppc-000005-tU4os6~md.json",
+  "digests": [
+    "urn:sha-512:c905240eac32c0a8c7cc4c0cd6dfce996349b50d414f9445bdbc06f9e111972302a3573cc9497ca6a2354ddc16f6a5d422f25c3e4102645ff9902eaf25915f16"
+  ],
+  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "tinder.3.tinder-rppc-000005-tU4os6~md.json",
+  "headersVersion": "1.0.draft"
+}

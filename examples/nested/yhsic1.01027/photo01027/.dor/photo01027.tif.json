@@ -1,0 +1,17 @@
+{
+  "id": "info:root/yhsic1.01027/photo01027/photo01027.tif",
+  "parent": "info:root/yhsic1.01027",
+  "interactionModel": "urn:glam:file",
+  "contentSize": 114555,
+  "mimeType": "image/tiff",
+  "filename": "photo01027/photo01027.tif",
+  "digests": [
+    "urn:sha-512:b5ff74b0d9eca5703d76b41bfea69a88e793ea00d3715be1c90ddedd60a648871c3bc82328d43c259ee5ba3a73f994dc7a84cb7e050e1cee92642c2b88d4ca98"
+  ],
+  "lastModifiedDate": "2025-10-28T16:21:47-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "photo01027/photo01027.tif",
+  "headersVersion": "1.0.draft"
+}

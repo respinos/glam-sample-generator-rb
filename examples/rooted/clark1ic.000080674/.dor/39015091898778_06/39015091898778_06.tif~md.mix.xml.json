@@ -1,0 +1,17 @@
+{
+  "id": "info:root/clark1ic.000080674/39015091898778_06/39015091898778_06.tif~md.mix.xml",
+  "parent": "info:root/clark1ic.000080674",
+  "interactionModel": "urn:glam:metadata",
+  "contentSize": 3160,
+  "mimeType": "application/mix+xml",
+  "filename": "39015091898778_06/39015091898778_06.tif~md.mix.xml",
+  "digests": [
+    "urn:sha-512:7b76a42ff256991a7cc6eb582f132ff822ff38083d4fc5172f1b9b3ac4f2f61eeeb6f5cfcab9c03d25e934a215285a14af32988bb123031319c2a86992a68ab5"
+  ],
+  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "39015091898778_06/39015091898778_06.tif~md.mix.xml",
+  "headersVersion": "1.0.draft"
+}

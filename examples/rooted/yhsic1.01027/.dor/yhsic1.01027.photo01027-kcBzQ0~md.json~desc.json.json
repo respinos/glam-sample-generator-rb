@@ -1,0 +1,17 @@
+{
+  "id": "info:root/yhsic1.01027/yhsic1.01027.photo01027-kcBzQ0~md.json~desc.json",
+  "parent": "info:root/yhsic1.01027",
+  "interactionModel": "urn:glam:use",
+  "contentSize": 41,
+  "mimeType": "application/use+json",
+  "filename": "yhsic1.01027.photo01027-kcBzQ0~md.json~desc.json",
+  "digests": [
+    "urn:sha-512:2c604430855a19251c8d5c4f33fb2388ff6a2b4aed92ec648a6aa5f04c321835e50f105f06f2feb09040454061da06db83b61dd1371035a95059b249e9382aa6"
+  ],
+  "lastModifiedDate": "2025-10-28T16:21:47-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "yhsic1.01027.photo01027-kcBzQ0~md.json~desc.json",
+  "headersVersion": "1.0.draft"
+}

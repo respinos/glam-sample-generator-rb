@@ -1,0 +1,17 @@
+{
+  "id": "info:root/clark1ic.000080674/structure.xml",
+  "parent": "info:root/clark1ic.000080674",
+  "interactionModel": "urn:glam:mets",
+  "contentSize": 1984,
+  "mimeType": "application/mets+xml",
+  "filename": "structure.xml",
+  "digests": [
+    "urn:sha-512:b8ddb89e0be0450222e586a228f099b508bc097f4f15863e16e005f5e16af4e559000cd10323b1d947eb7d2c151d81a91cf134877dbe7a3f84d7fbe2df7ca040"
+  ],
+  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "structure.xml",
+  "headersVersion": "1.0.draft"
+}

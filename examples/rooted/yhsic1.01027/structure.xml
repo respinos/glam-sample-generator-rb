@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
+  <mets:div TYPE="folio">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="019cc4f0-573d-7d20-8aa9-b5da78ac55a6 019cc4f0-574a-7292-b257-1ca808dffdb5 019cc4f0-5757-78d6-98f4-2475dac48139">
+      <mets:div TYPE="canvas">
+        <mets:mptr LOCATION="yhsic1.01027/photo01027"/>
+      </mets:div>
+    </mets:div>
+  </mets:div>
+</mets:structMap>
