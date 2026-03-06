@@ -1,13 +1,13 @@
 {
   "id": "info:root/clark1ic.000080674/structure.xml",
   "parent": "info:root/clark1ic.000080674",
-  "systemIdentifier": "019cc517-f658-72dd-8414-86b2186450a7",
+  "systemIdentifier": "40cdd48c-13fc-59bf-85f6-205103eed9d4",
   "interactionModel": "urn:glam:mets",
   "contentSize": 2002,
   "mimeType": "application/mets+xml",
   "filename": "structure.xml",
   "digests": [
-    "urn:sha-512:5c1fc394c12e92d3234f9a9f1de1e9beb6c8167d1f20a289278cc7c457ba282fdfde492f6bcb8f8e95a4afae180491d800c5fca5fd287b0acbd40290e35688bd"
+    "urn:sha-512:f0812b259bc8f5cc9dae9518b335e73ee371517b0b523b299da49457762067cbd658866e12e39f3cccccb0dd838f0497e9377877ca95dc8d088d9ea361c48692"
   ],
   "lastModifiedDate": "2026-01-30T16:33:55-05:00",
   "lastModifiedBy": "dlxsadm",

@@ -14,15 +14,18 @@ require 'nokogiri'
 require 'open3'
 require 'debug'
 require 'tty-command'
-require 'uuid7'
+require 'digest'
+require 'uuidtools'
 
+$uuid_index = 0
 ResourceFile = Struct.new(:filename, :use, :interactionModel, :mimeType, keyword_init: true) do
   attr_reader :system_identifier
   def initialize(*args)
     super(*args)
-    @system_identifier = UUID7.generate
-    # self.resource_path ||= $resource_path
-    # self.system_path ||= $header_path
+    # @system_identifier = UUID7.generate
+    $uuid_index += 1
+    # @system_identifier = self.class.integer_to_uuid_v5($uuid_index)
+    @system_identifier = UUIDTools::UUID.sha1_create($namespace_uuid, $uuid_index.to_s).to_s
   end
 
   def resource_path
@@ -44,6 +47,21 @@ ResourceFile = Struct.new(:filename, :use, :interactionModel, :mimeType, keyword
       interactionModel: "urn:glam:use",
       mimeType: "application/use+json"
     )
+  end
+
+  def self.integer_to_uuid_v5(i)
+    # Convert namespace UUID to binary
+    ns_bin = [$namespace_uuid.gsub('-', '')].pack('H*')
+    
+    # SHA1 hash of namespace + the integer string
+    hash = Digest::SHA1.digest(ns_bin + i.to_s)
+    
+    # Set version (5) and variant (RFC 4122) bits
+    ary = hash.unpack('NnnnnN')
+    ary[2] = (ary[2] & 0x0fff) | 0x5000 # Version 5
+    ary[3] = (ary[3] & 0x3fff) | 0x8000 # Variant bits
+    
+    "%08x-%04x-%04x-%04x-%04x%08x" % ary
   end
 end
 
@@ -142,6 +160,8 @@ def write_description(desc)
   end
   desc
 end
+
+$namespace_uuid = MY_NAMESPACE = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, options.collid)
 
 # 1. fetch the collection configuration
 collection = db.fetch("SELECT * FROM ImageClass a JOIN Collection b ON a.collid = b.collid AND a.userid = b.userid WHERE a.collid = ? AND a.userid = 'dlxsadm'", options.collid).first
@@ -456,6 +476,11 @@ generated_files.each do |resource_file|
     datum["id"] = "info:root/#{$local_identifier}/#{resource_file.filename}"
     datum["parent"] = parent_id
     datum["systemIdentifier"] = resource_file.system_identifier
+    if File.dirname(resource_file.filename) != "." and File.basename(resource_file.filename) == "core.json"
+      datum["alternateId"] = [
+        { type: "pendingId", "value": "#{options.collid}.#{File.dirname(resource_file.filename)}" }
+      ]
+    end
     datum["interactionModel"] = resource_file.interactionModel
     datum["contentSize"] = File.size(resource_file.resource_path)
     datum["mimeType"] = resource_file.mimeType

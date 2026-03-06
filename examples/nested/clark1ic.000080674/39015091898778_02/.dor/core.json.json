@@ -1,7 +1,13 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_02/core.json",
   "parent": "info:root/clark1ic.000080674/39015091898778_02",
-  "systemIdentifier": "019cc517-f807-795d-b11b-5f509d2fba3d",
+  "systemIdentifier": "9bdc762d-fc9c-5ec8-8339-3d4405163cbd",
+  "alternateId": [
+    {
+      "type": "pendingId",
+      "value": "clark1ic.39015091898778_02"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:service",
   "contentSize": 0,
   "mimeType": "application/dc+json",

@@ -1,13 +1,13 @@
 {
   "id": "info:root/tinder.3/structure.xml",
   "parent": "info:root/tinder.3",
-  "systemIdentifier": "019cc518-1bd5-79fb-b3fe-8805ae01fea8",
+  "systemIdentifier": "5f931ab2-c149-51c7-ab98-8d8475766e59",
   "interactionModel": "urn:glam:mets",
   "contentSize": 752,
   "mimeType": "application/mets+xml",
   "filename": "structure.xml",
   "digests": [
-    "urn:sha-512:202bbd143b0951d2906aa68815904e160393b925f4b98f849caf2d8765c4139f8000ff31d26d994496e3ace39afa7ecdb1f8ff1a2225b312bb8bb1752fb7ae8d"
+    "urn:sha-512:818ba04b818eb0120b7d9fda0c4fd7757ceffb14181f67c360765d8d5583f37a4830896dc0bdc6d36396c6c5503135197301f115d4743cb655cd99bd0c3e4e0f"
   ],
   "lastModifiedDate": "2025-11-05T15:34:56-05:00",
   "lastModifiedBy": "dlxsadm",

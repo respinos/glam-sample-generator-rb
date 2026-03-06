@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
   <mets:div TYPE="folio">
-    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="_019cc517-ebb1-729d-b26f-fd483a30b039 _019cc517-ebbf-781d-b1e3-83998fc2f4d5 _019cc517-ebcf-7f80-9fea-c93cf38e8b77">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="_4fa17da7-d1d2-5f13-85a3-527467eb85c9 _09503ec5-2cbe-5fdd-91ad-c9c82125dd0e _0e158b82-912e-59a6-8010-7819f5f2cc0c">
       <mets:div TYPE="canvas">
         <mets:mptr LOCATION="yhsic1.01027/photo01027"/>
       </mets:div>

@@ -1,7 +1,13 @@
 {
   "id": "info:root/tinder.3/tinder-rppc-000005/core.json",
   "parent": "info:root/tinder.3/tinder-rppc-000005",
-  "systemIdentifier": "019cc517-df1d-79b4-a20b-2d7632704cf5",
+  "systemIdentifier": "c3e34d2f-847e-512b-ac0b-1852eb7ea81e",
+  "alternateId": [
+    {
+      "type": "pendingId",
+      "value": "tinder.tinder-rppc-000005"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:service",
   "contentSize": 0,
   "mimeType": "application/dc+json",

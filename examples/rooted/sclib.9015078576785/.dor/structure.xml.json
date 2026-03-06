@@ -1,13 +1,13 @@
 {
   "id": "info:root/sclib.9015078576785/structure.xml",
   "parent": "info:root/sclib.9015078576785",
-  "systemIdentifier": "019cc517-cae7-7221-a71b-acf33ed10356",
+  "systemIdentifier": "b39b00ee-2edb-558f-802a-e57ec46f774f",
   "interactionModel": "urn:glam:mets",
   "contentSize": 344,
   "mimeType": "application/mets+xml",
   "filename": "structure.xml",
   "digests": [
-    "urn:sha-512:a4296c182b3682c77c80f9902c5cf0fa6d3992a0a80febe45f9d6da1252fada65982b6476aa6c73cb429f5b0860b7b5e81193b0c4ff76e7bcfc251905bf26bf4"
+    "urn:sha-512:2c93ad827849e3c8bf02c9591bc3b46a62f2af1e994567079a12c56d32b130c6f5453907aebf55e84a24688f09d99b257bb91be0ecaff2f5396e24872f969e84"
   ],
   "lastModifiedDate": "2023-09-06T16:20:48-04:00",
   "lastModifiedBy": "dlxsadm",

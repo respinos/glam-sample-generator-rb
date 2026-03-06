@@ -90,6 +90,7 @@ GEM
     uri (1.1.1)
     uuid7 (0.2.0)
       zeitwerk (~> 2.4)
+    uuidtools (3.0.0)
     zeitwerk (2.7.5)
 
 PLATFORMS
@@ -113,6 +114,7 @@ DEPENDENCIES
   sequel (~> 5.102)
   tty-command (~> 0.10.1)
   uuid7 (~> 0.2.0)
+  uuidtools (~> 3.0)
 
 BUNDLED WITH
    2.5.22
