@@ -1,13 +1,19 @@
 {
   "id": "info:root/clark1ic.000080674/core.json",
   "parent": "info:root/clark1ic.000080674",
-  "systemIdentifier": "6dd01e73-1304-5719-9723-431f6d90baea",
+  "systemIdentifier": "40a10281-3992-5a04-b43a-a1a4cc88b321",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "clark1ic"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:service",
-  "contentSize": 1987,
+  "contentSize": 1147,
   "mimeType": "application/dc+json",
   "filename": "core.json",
   "digests": [
-    "urn:sha-512:b1301ad224c43c96ffff94ff8294f336b3f7c1e31aa98c60eb620f9920a30d49ce22c2b3d59a7e068c05996ac1beadbcdedb2a2d4d82e1a5cbe9031fbe504029"
+    "urn:sha-512:8c54c5077d2f0bb8793e240833ec56aa1763bfae80bc3b5065dd45b48007ffeffc6d194e1938a9260a935eaba31bd42f895a7953139ff83651ba5f58c2d1a66e"
   ],
   "lastModifiedDate": "2026-01-30T16:33:55-05:00",
   "lastModifiedBy": "dlxsadm",

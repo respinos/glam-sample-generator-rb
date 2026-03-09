@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mets:structMap xmlns:mets="http://www.loc.gov/METS/v2">
   <mets:div TYPE="folio">
-    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="_55a33c4e-8a6d-5d78-9668-ca1e76f6eab4 _cd426f0c-cd10-5586-aaca-3ef31c968429 _beb6f7d7-0d15-5cc0-97f9-81e7909bb21b">
+    <mets:div TYPE="sheet" ORDER="1" ORDERLABEL="1" MDID="_58961408-61a6-5421-b34d-813d202f096c _ab9084bb-1960-57dd-b9cd-0d6598459648 _0c3440c9-0517-53f8-9102-7f2556ba3fa9">
       <mets:div TYPE="canvas">
         <mets:mptr LOCATION="tinder.3/tinder-rppc-000005"/>
       </mets:div>
     </mets:div>
-    <mets:div TYPE="sheet" ORDER="2" ORDERLABEL="2" MDID="_55a33c4e-8a6d-5d78-9668-ca1e76f6eab4 _3c6affaa-e7ea-5797-90f0-a800be9440c2 _9ff9ef15-75bd-5e89-a86d-e4988d41131b">
+    <mets:div TYPE="sheet" ORDER="2" ORDERLABEL="2" MDID="_58961408-61a6-5421-b34d-813d202f096c _a3214cee-ea0d-58b3-bd3f-5b8d257df65d _35ee7338-74c1-5e76-86b6-91e4cec79b66">
       <mets:div TYPE="canvas">
         <mets:mptr LOCATION="tinder.3/tinder-rppc-000006"/>
       </mets:div>

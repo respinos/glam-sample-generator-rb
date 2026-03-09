@@ -25,7 +25,7 @@ ResourceFile = Struct.new(:filename, :use, :interactionModel, :mimeType, keyword
     # @system_identifier = UUID7.generate
     $uuid_index += 1
     # @system_identifier = self.class.integer_to_uuid_v5($uuid_index)
-    @system_identifier = UUIDTools::UUID.sha1_create($namespace_uuid, $uuid_index.to_s).to_s
+    @system_identifier = UUIDTools::UUID.sha1_create($namespace_uuid, filename).to_s
   end
 
   def resource_path
@@ -291,11 +291,12 @@ File.open(core_md.resource_path, "w") do |f|
     xcoll_map["dc_ri"]["_"][1..-2]
   end
   datum = {
-    "id": $local_identifier,
-    "stakeholderId": options.collid,
+    # "id": $local_identifier,
+    # "stakeholderId": options.collid,
     "rightsStatement": rights_statement,
     "metadata": {}
   }
+  datum = {}
   xcoll_map.each do |k, v|
     next unless k.start_with?("dc_")
     next if k == "dc_ri"
@@ -305,11 +306,27 @@ File.open(core_md.resource_path, "w") do |f|
     end
     dc_k = DC_MAP[k]
     STDERR.puts "?? #{dc_k} :: #{k}"
-    datum[:metadata][dc_k] = [value] unless value.empty?
+    datum[dc_k] = [value] unless value.empty?
   end
   f.write(JSON.pretty_generate(datum))
 end
 generated_files << core_md
+
+rights_md = ResourceFile.new(filename: "rights.json", use: ["function:service"], interactionModel: "urn:glam:metadata:service", mimeType: "application/dc+json")
+File.open(rights_md.resource_path, "w") do |f|
+  rights_statement = if xcoll_map["dc_ri"]["_"].nil?
+    value = []
+    xcoll_map["dc_ri"].keys.each do |fld|
+      value << record[fld.to_sym] unless ( record[fld.to_sym].nil? )
+    end
+    value.join(' / ')
+  else
+    xcoll_map["dc_ri"]["_"][1..-2]
+  end
+  datum = { "dc.rights" => rights_statement }
+  f.write(JSON.pretty_generate(datum))
+end
+generated_files << rights_md
 
 records.each do |record|
   vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", use: ["function:service"], interactionModel: "urn:glam:metadata:#{options.collid}", mimeType: "application/dc+json")
@@ -475,10 +492,15 @@ generated_files.each do |resource_file|
     datum = {}
     datum["id"] = "info:root/#{$local_identifier}/#{resource_file.filename}"
     datum["parent"] = parent_id
+    # datum["stakeholderId"] = options.collid
     datum["systemIdentifier"] = resource_file.system_identifier
     if File.dirname(resource_file.filename) != "." and File.basename(resource_file.filename) == "core.json"
       datum["alternateId"] = [
         { type: "pendingId", "value": "#{options.collid}.#{File.dirname(resource_file.filename)}" }
+      ]
+    else
+      datum["alternateId"] = [
+        { type: "stakeholderId", "value": options.collid }
       ]
     end
     datum["interactionModel"] = resource_file.interactionModel

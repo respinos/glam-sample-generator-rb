@@ -1,7 +1,13 @@
 {
   "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.tif",
   "parent": "info:root/tinder.28855/tinder-rppc-057710",
-  "systemIdentifier": "28a13e46-b490-567f-a27f-a2b76767b39b",
+  "systemIdentifier": "5b30655f-e61c-583b-a041-38164ae820f7",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "tinder"
+    }
+  ],
   "interactionModel": "urn:glam:file",
   "contentSize": 77394,
   "mimeType": "image/tiff",

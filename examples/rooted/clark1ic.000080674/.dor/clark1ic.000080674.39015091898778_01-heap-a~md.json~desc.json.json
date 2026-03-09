@@ -1,7 +1,13 @@
 {
   "id": "info:root/clark1ic.000080674/clark1ic.000080674.39015091898778_01-heap-a~md.json~desc.json",
   "parent": "info:root/clark1ic.000080674",
-  "systemIdentifier": "958fd3e3-6309-51c3-b961-2a88d6a51fdd",
+  "systemIdentifier": "ba8b5ec9-e98d-53e1-b15d-1ffb154bc00e",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "clark1ic"
+    }
+  ],
   "interactionModel": "urn:glam:use",
   "contentSize": 40,
   "mimeType": "application/use+json",

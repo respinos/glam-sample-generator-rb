@@ -1,13 +1,19 @@
 {
   "id": "info:root/tinder.28855/core.json",
   "parent": "info:root/tinder.28855",
-  "systemIdentifier": "9d0f14d1-8219-527e-a091-8be5e82388d8",
+  "systemIdentifier": "1ec1c0c5-a895-503d-b8b1-6e953118723d",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "tinder"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:service",
-  "contentSize": 557,
+  "contentSize": 60,
   "mimeType": "application/dc+json",
   "filename": "core.json",
   "digests": [
-    "urn:sha-512:89ba272025143530584a04bb698abecf5f536a335fade440c38478f34685d4246c176957aae0f2a00d5c43cb733ffbad4a6a32b6a151030c1ab943d816eadafb"
+    "urn:sha-512:af6f6a771b07f1115165fbb18d3406f5204349c1a656e0ed5f84844418146f2f4ddd50645fb459a69a612a7a3ec14843e88ce1327a94c3b70deb814cf57fdfb6"
   ],
   "lastModifiedDate": "2025-11-05T15:34:56-05:00",
   "lastModifiedBy": "dlxsadm",

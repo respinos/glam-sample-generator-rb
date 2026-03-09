@@ -1,7 +1,13 @@
 {
   "id": "info:root/tinder.3/tinder.3~md.json",
   "parent": "info:root/tinder.3",
-  "systemIdentifier": "55a33c4e-8a6d-5d78-9668-ca1e76f6eab4",
+  "systemIdentifier": "58961408-61a6-5421-b34d-813d202f096c",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "tinder"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:tinder",
   "contentSize": 2578,
   "mimeType": "application/glam+json",

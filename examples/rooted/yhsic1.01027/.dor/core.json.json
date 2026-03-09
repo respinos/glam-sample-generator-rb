@@ -1,13 +1,19 @@
 {
   "id": "info:root/yhsic1.01027/core.json",
   "parent": "info:root/yhsic1.01027",
-  "systemIdentifier": "b5f91c2b-2b10-51b7-a562-14814dd019c4",
+  "systemIdentifier": "88f43eec-c6b7-56fd-8ff9-60f319050b0e",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "yhsic1"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:service",
-  "contentSize": 628,
+  "contentSize": 175,
   "mimeType": "application/dc+json",
   "filename": "core.json",
   "digests": [
-    "urn:sha-512:a6a80ad1b8ceb30ac7995ee7943526ae4b41e23ec3a22b3da551ee406753ed70d83e1ed1bf4e27befc5dd778af73e5f02534769e922fee9b85bb010905c64b43"
+    "urn:sha-512:9b7c8231d70b1f9e711a459abb88d6d392828f761d76c474ffdfc4c2086930d95a903ec9a14dc252656614506996fb0da482ec44e644fdf2e809ce0aa2ed8c9a"
   ],
   "lastModifiedDate": "2025-10-28T16:21:47-04:00",
   "lastModifiedBy": "dlxsadm",

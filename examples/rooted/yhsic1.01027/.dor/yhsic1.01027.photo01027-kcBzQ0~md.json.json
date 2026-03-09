@@ -1,7 +1,13 @@
 {
   "id": "info:root/yhsic1.01027/yhsic1.01027.photo01027-kcBzQ0~md.json",
   "parent": "info:root/yhsic1.01027",
-  "systemIdentifier": "0e158b82-912e-59a6-8010-7819f5f2cc0c",
+  "systemIdentifier": "cec48e5d-a97a-56f7-b4c9-16c0b57e6853",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "yhsic1"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:yhsic1",
   "contentSize": 175,
   "mimeType": "application/dc+json",

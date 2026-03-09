@@ -1,7 +1,13 @@
 {
   "id": "info:root/sclib.9015078576785/sclib.9015078576785.36838_0001-heap-a~md.json",
   "parent": "info:root/sclib.9015078576785",
-  "systemIdentifier": "2380b23d-896f-5493-a686-7ac8c2212ff0",
+  "systemIdentifier": "cbfc578f-1e6b-51e4-9501-8f8dd04e5d7e",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "sclib"
+    }
+  ],
   "interactionModel": "urn:glam:metadata:sclib",
   "contentSize": 1043,
   "mimeType": "application/glam+json",

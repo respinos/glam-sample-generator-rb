@@ -1,39 +1,34 @@
 {
-  "id": "sclib.9015078576785",
-  "stakeholderId": "sclib",
-  "rightsStatement": "The images in this collection are in the public domain and may be used without permission. Kindly provide attribution to the University of Michigan Special Collections Research Center for these images and where the original materials are held.",
-  "metadata": {
-    "dc.identifier": [
-      [
-        "9015078576785",
-        "36838_0001"
-      ]
-    ],
-    "dc.title": [
-      [
-        "&quot;William Shakespeare, born April 23, 1564, died April 23, 1616&quot;",
-        "The works of Shakespear : in six volumes / collated and corrected by the former editions, by Mr. Pope"
-      ]
-    ],
-    "dc.creator": [
-      [
-        "Shakespeare, William, 1564-1616."
-      ]
-    ],
-    "dc.date": [
-      [
-        "1723"
-      ]
-    ],
-    "dc.subject": [
-      [
-        "Shakespeare, William, 1564-1616"
-      ]
-    ],
-    "dc.source": [
-      [
-        "University of Michigan Library (Special Collections Library)"
-      ]
+  "dc.identifier": [
+    [
+      "9015078576785",
+      "36838_0001"
     ]
-  }
+  ],
+  "dc.title": [
+    [
+      "&quot;William Shakespeare, born April 23, 1564, died April 23, 1616&quot;",
+      "The works of Shakespear : in six volumes / collated and corrected by the former editions, by Mr. Pope"
+    ]
+  ],
+  "dc.creator": [
+    [
+      "Shakespeare, William, 1564-1616."
+    ]
+  ],
+  "dc.date": [
+    [
+      "1723"
+    ]
+  ],
+  "dc.subject": [
+    [
+      "Shakespeare, William, 1564-1616"
+    ]
+  ],
+  "dc.source": [
+    [
+      "University of Michigan Library (Special Collections Library)"
+    ]
+  ]
 }

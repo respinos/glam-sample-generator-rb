@@ -1,7 +1,13 @@
 {
   "id": "info:root/tinder.3/tinder-rppc-000005/tinder-rppc-000005.tif~md.mix.xml~desc.json",
   "parent": "info:root/tinder.3/tinder-rppc-000005",
-  "systemIdentifier": "9edf0395-c0f0-5de8-81c1-8fe1440b136f",
+  "systemIdentifier": "41704264-394e-55b8-b754-68424d9fa609",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "tinder"
+    }
+  ],
   "interactionModel": "urn:glam:use",
   "contentSize": 43,
   "mimeType": "application/use+json",

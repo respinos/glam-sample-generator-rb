@@ -1,7 +1,13 @@
 {
   "id": "info:root/clark1ic.000080674/39015091898778_05/39015091898778_05.tif~desc.json",
   "parent": "info:root/clark1ic.000080674/39015091898778_05",
-  "systemIdentifier": "a65b8e7f-3af4-5f7b-adfd-7dc60969e90a",
+  "systemIdentifier": "de4fc34e-935c-52b3-a41c-4f0978c0f044",
+  "alternateId": [
+    {
+      "type": "stakeholderId",
+      "value": "clark1ic"
+    }
+  ],
   "interactionModel": "urn:glam:use",
   "contentSize": 60,
   "mimeType": "application/use+json",
