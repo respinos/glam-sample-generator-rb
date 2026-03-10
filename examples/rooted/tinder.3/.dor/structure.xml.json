@@ -2,12 +2,6 @@
   "id": "info:root/tinder.3/structure.xml",
   "parent": "info:root/tinder.3",
   "systemIdentifier": "757bb036-c4ce-5c4c-9e91-cb5496e76467",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "tinder"
-    }
-  ],
   "interactionModel": "urn:glam:mets",
   "contentSize": 752,
   "mimeType": "application/mets+xml",

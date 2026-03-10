@@ -2,12 +2,6 @@
   "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.zooniverse.txt",
   "parent": "info:root/tinder.28855/tinder-rppc-057710",
   "systemIdentifier": "0fdbf3f3-ca25-5665-9f89-16690e665d8e",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "tinder"
-    }
-  ],
   "interactionModel": "urn:glam:file",
   "contentSize": 254,
   "mimeType": "text/plain",

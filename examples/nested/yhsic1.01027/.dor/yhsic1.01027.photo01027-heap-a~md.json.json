@@ -2,12 +2,6 @@
   "id": "info:root/yhsic1.01027/yhsic1.01027.photo01027-heap-a~md.json",
   "parent": "info:root/yhsic1.01027",
   "systemIdentifier": "b543ef92-3404-50ce-9077-a5338228c774",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "yhsic1"
-    }
-  ],
   "interactionModel": "urn:glam:metadata:yhsic1",
   "contentSize": 231,
   "mimeType": "application/glam+json",

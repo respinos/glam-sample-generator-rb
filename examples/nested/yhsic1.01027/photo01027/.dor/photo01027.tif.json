@@ -2,12 +2,6 @@
   "id": "info:root/yhsic1.01027/photo01027/photo01027.tif",
   "parent": "info:root/yhsic1.01027/photo01027",
   "systemIdentifier": "2e8078e0-f695-5b2a-8d88-02559e421698",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "yhsic1"
-    }
-  ],
   "interactionModel": "urn:glam:file",
   "contentSize": 114555,
   "mimeType": "image/tiff",

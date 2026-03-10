@@ -1,0 +1,18 @@
+{
+  "id": "info:root/tinder.3/rights.json~desc.json",
+  "parent": "info:root/tinder.3",
+  "systemIdentifier": "62684e9d-7e70-59e4-9a12-1f2e0dbf2513",
+  "interactionModel": "urn:glam:use",
+  "contentSize": 40,
+  "mimeType": "application/use+json",
+  "filename": "rights.json~desc.json",
+  "digests": [
+    "urn:sha-512:2274bf7b5477c3610a2553e80af56c047258d56112604cf8abcea7f25d10ee7a961663cd815f976b8ffe8178c39cc119ce0b3e290a746ba1a19aebe487d89262"
+  ],
+  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "rights.json~desc.json",
+  "headersVersion": "1.0.draft"
+}

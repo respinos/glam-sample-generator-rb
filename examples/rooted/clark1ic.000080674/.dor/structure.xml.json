@@ -2,12 +2,6 @@
   "id": "info:root/clark1ic.000080674/structure.xml",
   "parent": "info:root/clark1ic.000080674",
   "systemIdentifier": "645d8707-728f-575a-a789-f95069ce3c1a",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "clark1ic"
-    }
-  ],
   "interactionModel": "urn:glam:mets",
   "contentSize": 2002,
   "mimeType": "application/mets+xml",

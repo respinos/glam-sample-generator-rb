@@ -2,12 +2,6 @@
   "id": "info:root/sclib.9015078576785/structure.xml",
   "parent": "info:root/sclib.9015078576785",
   "systemIdentifier": "c66aeb17-0dc2-5444-8f5b-7fa623351fd5",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "sclib"
-    }
-  ],
   "interactionModel": "urn:glam:mets",
   "contentSize": 344,
   "mimeType": "application/mets+xml",

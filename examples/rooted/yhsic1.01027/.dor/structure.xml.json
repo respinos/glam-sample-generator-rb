@@ -2,12 +2,6 @@
   "id": "info:root/yhsic1.01027/structure.xml",
   "parent": "info:root/yhsic1.01027",
   "systemIdentifier": "ae7b9ce4-de8e-5008-81f5-171f5ad2147c",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "yhsic1"
-    }
-  ],
   "interactionModel": "urn:glam:mets",
   "contentSize": 449,
   "mimeType": "application/mets+xml",

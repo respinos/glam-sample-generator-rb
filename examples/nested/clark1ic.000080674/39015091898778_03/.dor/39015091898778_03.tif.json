@@ -2,12 +2,6 @@
   "id": "info:root/clark1ic.000080674/39015091898778_03/39015091898778_03.tif",
   "parent": "info:root/clark1ic.000080674/39015091898778_03",
   "systemIdentifier": "61090737-88ba-5354-8a09-387c829be29a",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "clark1ic"
-    }
-  ],
   "interactionModel": "urn:glam:file",
   "contentSize": 76162,
   "mimeType": "image/tiff",

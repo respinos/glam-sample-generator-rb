@@ -1,0 +1,18 @@
+{
+  "id": "info:root/clark1ic.000080674/rights.json",
+  "parent": "info:root/clark1ic.000080674",
+  "systemIdentifier": "d54ed5d1-e6b4-5dc5-b909-d6f3e71f5981",
+  "interactionModel": "urn:glam:metadata:service",
+  "contentSize": 669,
+  "mimeType": "application/dc+json",
+  "filename": "rights.json",
+  "digests": [
+    "urn:sha-512:efdd48ebe502c41ff75bb243c97b1f572b777683bea75240a5be0d6cf3d899420fad604cb3244b45772b0064424b6d93f28694c452be97d4ec4164f8b9467ee5"
+  ],
+  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "rights.json",
+  "headersVersion": "1.0.draft"
+}

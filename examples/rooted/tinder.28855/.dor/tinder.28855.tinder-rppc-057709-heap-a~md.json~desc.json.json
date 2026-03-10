@@ -2,12 +2,6 @@
   "id": "info:root/tinder.28855/tinder.28855.tinder-rppc-057709-heap-a~md.json~desc.json",
   "parent": "info:root/tinder.28855",
   "systemIdentifier": "bb214fd0-bcb6-5d69-b62e-6fcc71e74689",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "tinder"
-    }
-  ],
   "interactionModel": "urn:glam:use",
   "contentSize": 40,
   "mimeType": "application/use+json",

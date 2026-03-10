@@ -1,0 +1,18 @@
+{
+  "id": "info:root/yhsic1.01027/rights.json",
+  "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "db127bd8-a49e-5cb7-b256-2fcbf934e5d5",
+  "interactionModel": "urn:glam:metadata:service",
+  "contentSize": 346,
+  "mimeType": "application/dc+json",
+  "filename": "rights.json",
+  "digests": [
+    "urn:sha-512:6f7e964e6273cf2416891cc9d7efce2bdc263872eb5f18074fc99cc86f5b9eaff47ad720a75ae2d5ca0a33e2cf78f504c53e0a1e34286be3b5f23b24226dd40a"
+  ],
+  "lastModifiedDate": "2025-10-28T16:21:47-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "rights.json",
+  "headersVersion": "1.0.draft"
+}

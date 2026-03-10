@@ -2,12 +2,6 @@
   "id": "info:root/yhsic1.01027/photo01027/photo01027.tif~md.mix.xml",
   "parent": "info:root/yhsic1.01027/photo01027",
   "systemIdentifier": "d72962b4-2749-507f-95c0-1dc09d0a99b2",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "yhsic1"
-    }
-  ],
   "interactionModel": "urn:glam:metadata",
   "contentSize": 3158,
   "mimeType": "application/mix+xml",

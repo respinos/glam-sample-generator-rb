@@ -2,12 +2,6 @@
   "id": "info:root/tinder.3/tinder-rppc-000006/tinder-rppc-000006.tif~md.mix.xml",
   "parent": "info:root/tinder.3/tinder-rppc-000006",
   "systemIdentifier": "776498fd-2390-507b-9ae2-9fd4efe870df",
-  "alternateId": [
-    {
-      "type": "stakeholderId",
-      "value": "tinder"
-    }
-  ],
   "interactionModel": "urn:glam:metadata",
   "contentSize": 3160,
   "mimeType": "application/mix+xml",

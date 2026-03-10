@@ -1,0 +1,18 @@
+{
+  "id": "info:root/sclib.9015078576785/rights.json",
+  "parent": "info:root/sclib.9015078576785",
+  "systemIdentifier": "3e82abe9-acef-56f1-b52c-44290414245f",
+  "interactionModel": "urn:glam:metadata:service",
+  "contentSize": 264,
+  "mimeType": "application/dc+json",
+  "filename": "rights.json",
+  "digests": [
+    "urn:sha-512:33024cadff63b737ae052dc88408af1212f1b99a707e8ebe0dcf5a4780c325fe5108572d2c3415e319f3a77aec385a8ebd81827beb7a154491e6422d432e2bcc"
+  ],
+  "lastModifiedDate": "2023-09-06T16:20:48-04:00",
+  "lastModifiedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "public",
+  "contentPath": "rights.json",
+  "headersVersion": "1.0.draft"
+}

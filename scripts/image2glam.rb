@@ -312,7 +312,7 @@ File.open(core_md.resource_path, "w") do |f|
 end
 generated_files << core_md
 
-rights_md = ResourceFile.new(filename: "rights.json", use: ["function:service"], interactionModel: "urn:glam:metadata:service", mimeType: "application/dc+json")
+rights_md = ResourceFile.new(filename: "rights.json", use: ["function:rights"], interactionModel: "urn:glam:metadata:service", mimeType: "application/dc+json")
 File.open(rights_md.resource_path, "w") do |f|
   rights_statement = if xcoll_map["dc_ri"]["_"].nil?
     value = []
@@ -327,6 +327,7 @@ File.open(rights_md.resource_path, "w") do |f|
   f.write(JSON.pretty_generate(datum))
 end
 generated_files << rights_md
+generated_files << write_description(rights_md.desc)
 
 records.each do |record|
   vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", use: ["function:service"], interactionModel: "urn:glam:metadata:#{options.collid}", mimeType: "application/dc+json")
@@ -498,7 +499,7 @@ generated_files.each do |resource_file|
       datum["alternateId"] = [
         { type: "pendingId", "value": "#{options.collid}.#{File.dirname(resource_file.filename)}" }
       ]
-    else
+    elsif resource_file.filename.end_with?('core.json')
       datum["alternateId"] = [
         { type: "stakeholderId", "value": options.collid }
       ]
