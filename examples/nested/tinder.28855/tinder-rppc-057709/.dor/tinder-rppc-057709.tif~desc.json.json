@@ -3,10 +3,10 @@
   "parent": "info:root/tinder.28855/tinder-rppc-057709",
   "systemIdentifier": "f0e4d88a-bc26-5af3-8e7b-fd6e07911732",
   "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
-  "contentSize": 67,
+  "contentSize": 89,
   "filename": "tinder-rppc-057709/tinder-rppc-057709.tif~desc.json",
   "digests": [
-    "urn:sha-512:0ff4c94a989d448b6dd958614fb7787e4a0adb40c39649717350a3063f53f00d5ac2c1b61eceda2f6f163c33ed9927097b35903d421bd59173c69896e1799526"
+    "urn:sha-512:bbfbdee4e4ee2cf5d52c151797b4500b215651afaca15b03d67f25d2dbed6ccde268d2ae8b5295d77cc4b76024ecc4e38dd75ac9622b877a1be4b429da49007c"
   ],
   "updatedAt": "2025-11-05T15:34:56-05:00",
   "updatedBy": "dlxsadm",

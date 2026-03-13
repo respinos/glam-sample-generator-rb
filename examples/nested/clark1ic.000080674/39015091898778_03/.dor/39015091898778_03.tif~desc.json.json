@@ -3,10 +3,10 @@
   "parent": "info:root/clark1ic.000080674/39015091898778_03",
   "systemIdentifier": "5f0bd7bb-f7c0-562b-a8d9-76a227b36e1b",
   "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
-  "contentSize": 67,
+  "contentSize": 89,
   "filename": "39015091898778_03/39015091898778_03.tif~desc.json",
   "digests": [
-    "urn:sha-512:0ff4c94a989d448b6dd958614fb7787e4a0adb40c39649717350a3063f53f00d5ac2c1b61eceda2f6f163c33ed9927097b35903d421bd59173c69896e1799526"
+    "urn:sha-512:bbfbdee4e4ee2cf5d52c151797b4500b215651afaca15b03d67f25d2dbed6ccde268d2ae8b5295d77cc4b76024ecc4e38dd75ac9622b877a1be4b429da49007c"
   ],
   "updatedAt": "2026-01-30T16:33:55-05:00",
   "updatedBy": "dlxsadm",

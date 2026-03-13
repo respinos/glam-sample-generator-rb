@@ -348,7 +348,7 @@ generated_files << rights_md
 # generated_files << write_description(rights_md.desc)
 
 records.each do |record|
-  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", function: ["service"], interactionModel: DOR("file:metadata"), mimeType: "application/dc+json")
+  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", function: ["service"], section: "metadata", interactionModel: DOR("file:metadata"), mimeType: "application/dc+json")
   record_mdref_map[record[:m_iid]] << vi_md
   File.open(vi_md.resource_path, "w") do |f|
     datum = {}
@@ -412,7 +412,7 @@ records.each_with_index do |record, record_index|
     )
 
     fileset_identifier = asset[:basename].downcase
-    image_file = ResourceFile.new(filename: "#{fileset_identifier}/#{record[:m_fn]}.tif", function: ["source"], format: ["image"], interactionModel: DOR("file:data"), mimeType: "image/tiff")
+    image_file = ResourceFile.new(filename: "#{fileset_identifier}/#{record[:m_fn]}.tif", function: ["source"], format: ["image"], section: "files", interactionModel: DOR("file:data"), mimeType: "image/tiff")
     core_md = ResourceFile.new(filename: "#{fileset_identifier}/core.dor.json", interactionModel: DOR("resource:fileset"), mimeType: "application/dc+json")  
 
     FileUtils.mkdir_p(File.dirname(image_file.resource_path))
