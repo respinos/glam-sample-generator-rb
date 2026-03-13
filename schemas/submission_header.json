@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://umich.edu/schemas/submission_header.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "parent": {
+      "type": "string",
+      "format": "uri"
+    },
+    "systemIdentifier": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "interactionModel": {
+      "type": "string",
+      "format": "uri",
+      "enum": [
+        "urn:umich:lib:dor:model:2026:file:data",
+        "urn:umich:lib:dor:model:2026:file:metadata",
+        "urn:umich:lib:dor:model:2026:file:description",
+        "urn:umich:lib:dor:model:2026:resource:glam",
+        "urn:umich:lib:dor:model:2026:resource:fileset",
+        "urn:umich:lib:dor:model:2026:rights",
+        "urn:umich:lib:dor:model:2026:inventory",
+        "urn:umich:lib:dor:model:2026:acl",
+        "urn:umich:lib:dor:model:2026:structure"
+      ]
+    },
+    "contentSize": {
+      "type": "integer"
+    },
+    "digests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedBy": {
+      "type": "string"
+    },
+    "deleted": {
+      "type": "boolean"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["private", "unlisted", "visible", "tombstone"]
+    },
+    "contentPath": {
+      "type": "string"
+    },
+    "headersVersion": {
+      "type": "string",
+      "enum": ["1.0"]
+    }
+  },
+  "required": [
+    "id",
+    "parent",
+    "systemIdentifier",
+    "interactionModel",
+    "updatedAt",
+    "headersVersion"
+  ],
+  "$comment": "Non-resources have additional properties",
+"allOf": [
+    {
+      "if": {
+        "properties": {
+          "interactionModel": {
+            "enum": [
+              "urn:umich:lib:dor:model:2026:file:data",
+              "urn:umich:lib:dor:model:2026:file:metadata"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "mimeType": { "type": "string" },
+          "filename": { "type": "string" }
+        },
+        "required": ["mimeType", "filename"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "interactionModel": {
+            "const": "urn:umich:lib:dor:model:2026:resource:glam"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "stakeholderId": { "type": "string" },
+          "alternateId": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "value": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

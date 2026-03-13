@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://umich.edu/schemas/preservation_header.json",  
+  "allOf": [
+    { "$ref": "https://umich.edu/schemas/submission_header.json" }
+  ],  
+  "type": "object",
+  "required": [
+    "deleted",
+    "visibility"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "urn:umich:lib:dor:schemas:2026:description",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["audio", "audiovidual", "image", "text-annotation", "text-coordinate", "text-encoded", "text-plain"]
+      }
+    },
+    "function": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["service", "source", "discovery", "preservation", "technical"]
+      }
+    },
+    "section": {
+      "type": "string",
+      "enum": ["files", "metadata"]
+    }
+  },
+  "required": ["function", "section"],
+  "if": {
+    "properties": {
+      "section": {
+        "const": "files"
+      }
+    }
+  },
+  "then": {
+    "required": ["format"]
+  }
+}
