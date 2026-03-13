@@ -2,17 +2,16 @@
   "id": "info:root/tinder.3/tinder-rppc-000005/tinder-rppc-000005.zooniverse.txt~desc.json",
   "parent": "info:root/tinder.3/tinder-rppc-000005",
   "systemIdentifier": "e2680f6c-b0c0-552a-b23e-2611be6e53b5",
-  "interactionModel": "urn:glam:use",
-  "contentSize": 65,
-  "mimeType": "application/use+json",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
+  "contentSize": 94,
   "filename": "tinder-rppc-000005/tinder-rppc-000005.zooniverse.txt~desc.json",
   "digests": [
-    "urn:sha-512:24ea80399905a151bb0229cb550c3a0e6bc372968d904651ca145259f38c1fccbcb5417d30ba1efa8ba570975bb13fda32085e182218f01222c21977a1cdebbe"
+    "urn:sha-512:d9c1068850503d9408fee071b272ebc871341869776f8c4e162fed5ac3d7c9a0cc8d3f7e191b747a048e8b2097d210ab2b4a3a1da86ca3d8ec5fe7a0c219a068"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder-rppc-000005.zooniverse.txt~desc.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

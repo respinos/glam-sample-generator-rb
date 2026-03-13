@@ -1,5 +1,6 @@
 {
-  "use": [
-    "function:source"
-  ]
+  "function": [
+    "source"
+  ],
+  "section": "metadata"
 }

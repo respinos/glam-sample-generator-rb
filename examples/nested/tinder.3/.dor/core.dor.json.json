@@ -1,0 +1,27 @@
+{
+  "id": "info:root/tinder.3",
+  "parent": "info:root",
+  "systemIdentifier": "826f0ff2-2dae-5199-a3f6-9c6c9feea4c7",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:tinder",
+  "alternateId": [
+    {
+      "type": "dlxs",
+      "value": "https://quod.lib.umich.edu/t/tinder/3"
+    },
+    {
+      "type": "nameresolver",
+      "value": "IC-TINDER-X-3]1"
+    }
+  ],
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:glam",
+  "contentSize": 72,
+  "digests": [
+    "urn:sha-512:c905240eac32c0a8c7cc4c0cd6dfce996349b50d414f9445bdbc06f9e111972302a3573cc9497ca6a2354ddc16f6a5d422f25c3e4102645ff9902eaf25915f16"
+  ],
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

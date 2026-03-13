@@ -1,0 +1,16 @@
+{
+  "id": "info:root/yhsic1.01027/rights.dor.json",
+  "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "84ce08fb-02a2-5b3d-b7f7-75b9e46f2de9",
+  "interactionModel": "urn:umich:lib:dor:model:2026:rights",
+  "contentSize": 346,
+  "digests": [
+    "urn:sha-512:6f7e964e6273cf2416891cc9d7efce2bdc263872eb5f18074fc99cc86f5b9eaff47ad720a75ae2d5ca0a33e2cf78f504c53e0a1e34286be3b5f23b24226dd40a"
+  ],
+  "updatedAt": "2025-10-28T16:21:47-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "rights.dor.json",
+  "headersVersion": "1.0"
+}

@@ -2,17 +2,17 @@
   "id": "info:root/tinder.3/tinder-rppc-000005/tinder-rppc-000005.tif~md.mix.xml",
   "parent": "info:root/tinder.3/tinder-rppc-000005",
   "systemIdentifier": "53d5a5ec-f87a-5dad-a025-411b6c9b9bae",
-  "interactionModel": "urn:glam:metadata",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 3160,
   "mimeType": "application/mix+xml",
   "filename": "tinder-rppc-000005/tinder-rppc-000005.tif~md.mix.xml",
   "digests": [
     "urn:sha-512:34c50dd7281044872b7f438763392a31d6e747f1e2923fe5e57d61d5f5871f5de7ae8b87f1de52ba6828eb7272dd1d9405490bc3194b57deaaf2d9d2918ce3b1"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder-rppc-000005.tif~md.mix.xml",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

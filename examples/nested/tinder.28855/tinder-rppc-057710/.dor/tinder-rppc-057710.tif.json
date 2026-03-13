@@ -2,17 +2,17 @@
   "id": "info:root/tinder.28855/tinder-rppc-057710/tinder-rppc-057710.tif",
   "parent": "info:root/tinder.28855/tinder-rppc-057710",
   "systemIdentifier": "5b30655f-e61c-583b-a041-38164ae820f7",
-  "interactionModel": "urn:glam:file",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:data",
   "contentSize": 77394,
   "mimeType": "image/tiff",
   "filename": "tinder-rppc-057710/tinder-rppc-057710.tif",
   "digests": [
     "urn:sha-512:65392300af70cd53e3c0db30062d19e578aba49b3c13770fe3ea4e389917a7b1bac02914091730a9724b0a5a1068433e2aca1ad5f04254306cc51aa92c87ba72"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder-rppc-057710.tif",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

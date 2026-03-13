@@ -1,0 +1,16 @@
+{
+  "id": "info:root/sclib.9015078576785/rights.dor.json",
+  "parent": "info:root/sclib.9015078576785",
+  "systemIdentifier": "0ce6e31e-beda-549c-b474-bd2e796fbb7d",
+  "interactionModel": "urn:umich:lib:dor:model:2026:rights",
+  "contentSize": 264,
+  "digests": [
+    "urn:sha-512:33024cadff63b737ae052dc88408af1212f1b99a707e8ebe0dcf5a4780c325fe5108572d2c3415e319f3a77aec385a8ebd81827beb7a154491e6422d432e2bcc"
+  ],
+  "updatedAt": "2023-09-06T16:20:48-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "rights.dor.json",
+  "headersVersion": "1.0"
+}

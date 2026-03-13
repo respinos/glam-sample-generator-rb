@@ -1,0 +1,16 @@
+{
+  "id": "info:root/clark1ic.000080674/rights.dor.json",
+  "parent": "info:root/clark1ic.000080674",
+  "systemIdentifier": "df5b6319-934d-582d-867d-db9fa40c7d72",
+  "interactionModel": "urn:umich:lib:dor:model:2026:rights",
+  "contentSize": 669,
+  "digests": [
+    "urn:sha-512:efdd48ebe502c41ff75bb243c97b1f572b777683bea75240a5be0d6cf3d899420fad604cb3244b45772b0064424b6d93f28694c452be97d4ec4164f8b9467ee5"
+  ],
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "rights.dor.json",
+  "headersVersion": "1.0"
+}

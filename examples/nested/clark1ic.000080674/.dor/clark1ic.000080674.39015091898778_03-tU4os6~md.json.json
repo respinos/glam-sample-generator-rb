@@ -2,17 +2,17 @@
   "id": "info:root/clark1ic.000080674/clark1ic.000080674.39015091898778_03-tU4os6~md.json",
   "parent": "info:root/clark1ic.000080674",
   "systemIdentifier": "229a0151-261c-5b9d-a612-e5a6b3ce0cb7",
-  "interactionModel": "urn:glam:metadata:clark1ic",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 305,
   "mimeType": "application/glam+json",
   "filename": "clark1ic.000080674.39015091898778_03-tU4os6~md.json",
   "digests": [
     "urn:sha-512:3099d42121bc392efe4de7576bd30a63d1663b1aad0bd8750a01e2c3f2f9bac523e26e743b1d0c4b9a58e0090dc27c65649639feb84b0cea3c751fd43e07804d"
   ],
-  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "clark1ic.000080674.39015091898778_03-tU4os6~md.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

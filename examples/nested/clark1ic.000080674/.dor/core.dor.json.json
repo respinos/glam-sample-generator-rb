@@ -1,0 +1,27 @@
+{
+  "id": "info:root/clark1ic.000080674",
+  "parent": "info:root",
+  "systemIdentifier": "3a507d1e-0eb4-5369-a0bd-737967100ca6",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:clark1ic",
+  "alternateId": [
+    {
+      "type": "dlxs",
+      "value": "https://quod.lib.umich.edu/c/clark1ic/000080674"
+    },
+    {
+      "type": "nameresolver",
+      "value": "IC-CLARK1IC-X-000080674]1"
+    }
+  ],
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:glam",
+  "contentSize": 1147,
+  "digests": [
+    "urn:sha-512:8c54c5077d2f0bb8793e240833ec56aa1763bfae80bc3b5065dd45b48007ffeffc6d194e1938a9260a935eaba31bd42f895a7953139ff83651ba5f58c2d1a66e"
+  ],
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

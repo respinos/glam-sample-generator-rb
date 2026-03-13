@@ -1,0 +1,17 @@
+{
+  "id": "info:root/yhsic1.01027/photo01027",
+  "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "b47b3e99-5013-5ae4-b159-67370a558206",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:yhsic1",
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:fileset",
+  "contentSize": 2,
+  "digests": [
+    "urn:sha-512:27c74670adb75075fad058d5ceaf7b20c4e7786c83bae8a32f626f9782af34c9a33c2046ef60fd2a7878d378e29fec851806bbd9a67878f3a9f1cda4830763fd"
+  ],
+  "updatedAt": "2025-10-28T16:21:47-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

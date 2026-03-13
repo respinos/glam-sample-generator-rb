@@ -2,17 +2,16 @@
   "id": "info:root/tinder.28855/tinder.28855~md.json~desc.json",
   "parent": "info:root/tinder.28855",
   "systemIdentifier": "d8dbaf73-811d-5841-9578-e942168dc32d",
-  "interactionModel": "urn:glam:use",
-  "contentSize": 40,
-  "mimeType": "application/use+json",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
+  "contentSize": 61,
   "filename": "tinder.28855~md.json~desc.json",
   "digests": [
-    "urn:sha-512:946304683079f31528fdb1e49efc44c24c5a2533399150e32aa912770212a905c8164deb1d6ddf5b58547820d3e976f28381feb1035abf0139a3e444e177171e"
+    "urn:sha-512:2bbbb04d0e3fd471b05a5346861a1e8c3774c429852b8fe2a8cbaac0f3db0fcc211d29172bacd0ff8def453c4158cdbee13a73b6d8640de5e13066c59c5d7fd2"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder.28855~md.json~desc.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

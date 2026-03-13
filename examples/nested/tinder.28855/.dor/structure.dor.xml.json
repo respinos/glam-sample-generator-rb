@@ -1,0 +1,16 @@
+{
+  "id": "info:root/tinder.28855/structure.dor.xml",
+  "parent": "info:root/tinder.28855",
+  "systemIdentifier": "e77bd700-7506-5e66-922f-165d36b5cfbb",
+  "interactionModel": "urn:umich:lib:dor:model:2026:structure",
+  "contentSize": 760,
+  "digests": [
+    "urn:sha-512:992c7595ab9ea94420b1ef3f3f5262cb5af0d2f6f1c75e9ce2145fd0ef7bbeaabd8cb905ed06d32eabf7c5ea94ec3b20bd8648aa9be9ae76cdf420714ba25f3b"
+  ],
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "structure.dor.xml",
+  "headersVersion": "1.0"
+}

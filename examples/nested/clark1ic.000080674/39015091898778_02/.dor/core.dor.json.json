@@ -1,0 +1,17 @@
+{
+  "id": "info:root/clark1ic.000080674/39015091898778_02",
+  "parent": "info:root/clark1ic.000080674",
+  "systemIdentifier": "93bc2f4e-9520-527f-98c2-bbc5ee4ef64d",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:clark1ic",
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:fileset",
+  "contentSize": 2,
+  "digests": [
+    "urn:sha-512:27c74670adb75075fad058d5ceaf7b20c4e7786c83bae8a32f626f9782af34c9a33c2046ef60fd2a7878d378e29fec851806bbd9a67878f3a9f1cda4830763fd"
+  ],
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

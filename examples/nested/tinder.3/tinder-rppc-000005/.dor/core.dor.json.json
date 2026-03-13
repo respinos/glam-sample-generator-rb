@@ -1,0 +1,17 @@
+{
+  "id": "info:root/tinder.3/tinder-rppc-000005",
+  "parent": "info:root/tinder.3",
+  "systemIdentifier": "298b418b-f408-5efd-9899-751ab403b82f",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:tinder",
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:fileset",
+  "contentSize": 2,
+  "digests": [
+    "urn:sha-512:27c74670adb75075fad058d5ceaf7b20c4e7786c83bae8a32f626f9782af34c9a33c2046ef60fd2a7878d378e29fec851806bbd9a67878f3a9f1cda4830763fd"
+  ],
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

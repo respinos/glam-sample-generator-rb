@@ -1,0 +1,27 @@
+{
+  "id": "info:root/sclib.9015078576785",
+  "parent": "info:root",
+  "systemIdentifier": "b8a623e0-1c58-5210-867c-28c35f2631fd",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:sclib",
+  "alternateId": [
+    {
+      "type": "dlxs",
+      "value": "https://quod.lib.umich.edu/s/sclib/9015078576785"
+    },
+    {
+      "type": "nameresolver",
+      "value": "IC-SCLIB-X-9015078576785]1"
+    }
+  ],
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:glam",
+  "contentSize": 607,
+  "digests": [
+    "urn:sha-512:7f73e2879a5e29069bfe5724a6553af138a99c66314a91b10d7ff3851f07a31f0b1bf8f7772271fb52b580bdd1a9a4e05603d0c541dde4cdb87cbc2b850a66c4"
+  ],
+  "updatedAt": "2023-09-06T16:20:48-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

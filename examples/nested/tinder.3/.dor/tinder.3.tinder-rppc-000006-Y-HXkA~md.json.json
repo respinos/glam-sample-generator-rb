@@ -2,17 +2,17 @@
   "id": "info:root/tinder.3/tinder.3.tinder-rppc-000006-Y-HXkA~md.json",
   "parent": "info:root/tinder.3",
   "systemIdentifier": "35ee7338-74c1-5e76-86b6-91e4cec79b66",
-  "interactionModel": "urn:glam:metadata:tinder",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 72,
   "mimeType": "application/dc+json",
   "filename": "tinder.3.tinder-rppc-000006-Y-HXkA~md.json",
   "digests": [
     "urn:sha-512:c905240eac32c0a8c7cc4c0cd6dfce996349b50d414f9445bdbc06f9e111972302a3573cc9497ca6a2354ddc16f6a5d422f25c3e4102645ff9902eaf25915f16"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder.3.tinder-rppc-000006-Y-HXkA~md.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

@@ -1,0 +1,16 @@
+{
+  "id": "info:root/clark1ic.000080674/structure.dor.xml",
+  "parent": "info:root/clark1ic.000080674",
+  "systemIdentifier": "3d4b16d6-a9a1-56ee-a13a-0b175dc63d68",
+  "interactionModel": "urn:umich:lib:dor:model:2026:structure",
+  "contentSize": 2002,
+  "digests": [
+    "urn:sha-512:f5969def3fff3ed75ee342054198a40073b22ca175510c26ce8b238346d341737dfa4c5ae1d4c59cfbcc0eda3d4b3359b390221d61f5c19f887ea1348dd479e7"
+  ],
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "structure.dor.xml",
+  "headersVersion": "1.0"
+}

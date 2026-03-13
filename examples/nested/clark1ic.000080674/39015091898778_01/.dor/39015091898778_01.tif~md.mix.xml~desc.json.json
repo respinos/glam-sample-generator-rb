@@ -2,17 +2,16 @@
   "id": "info:root/clark1ic.000080674/39015091898778_01/39015091898778_01.tif~md.mix.xml~desc.json",
   "parent": "info:root/clark1ic.000080674/39015091898778_01",
   "systemIdentifier": "89c2227f-931f-5c0c-a724-9fbeff99b2de",
-  "interactionModel": "urn:glam:use",
-  "contentSize": 43,
-  "mimeType": "application/use+json",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
+  "contentSize": 64,
   "filename": "39015091898778_01/39015091898778_01.tif~md.mix.xml~desc.json",
   "digests": [
-    "urn:sha-512:855d721d3e714ecf2dfec9633615580935629a2e51f43ce76fc595304f963244748a15b43f41f4f5cddcc95e02f0a35a33bb14e1820583411e7945c9784cd267"
+    "urn:sha-512:74f80d8169eee2d42cb0676a34a547e4c7782db2b75b9525617054b960fbc741e975c74904d41c6eb8daf5056b235af12520e43b64a02e803ec4080ad4a37ffb"
   ],
-  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "39015091898778_01.tif~md.mix.xml~desc.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

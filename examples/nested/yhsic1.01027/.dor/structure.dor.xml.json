@@ -1,0 +1,16 @@
+{
+  "id": "info:root/yhsic1.01027/structure.dor.xml",
+  "parent": "info:root/yhsic1.01027",
+  "systemIdentifier": "b0e41247-768a-5337-8d72-07fc95d395a5",
+  "interactionModel": "urn:umich:lib:dor:model:2026:structure",
+  "contentSize": 449,
+  "digests": [
+    "urn:sha-512:215aec92c88ff26bddabc1c8644faad2f83d7d63804d8bb563a1862824b1a0416834a0f5b8fc679f8cf5a6f558c0e1e310e15a47067a24a1aa75d2fd4c52ae90"
+  ],
+  "updatedAt": "2025-10-28T16:21:47-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "structure.dor.xml",
+  "headersVersion": "1.0"
+}

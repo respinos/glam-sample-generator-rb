@@ -1,5 +1,6 @@
 {
-  "use": [
-    "function:technical"
-  ]
+  "function": [
+    "technical"
+  ],
+  "section": "metadata"
 }

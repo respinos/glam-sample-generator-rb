@@ -1,0 +1,16 @@
+{
+  "id": "info:root/tinder.3/rights.dor.json",
+  "parent": "info:root/tinder.3",
+  "systemIdentifier": "c4b31c45-f609-52c4-b25b-e3bc35bdb9e4",
+  "interactionModel": "urn:umich:lib:dor:model:2026:rights",
+  "contentSize": 410,
+  "digests": [
+    "urn:sha-512:d9671c25b1a3c69732fa323d3fb281f9ce027753bb746b6f25dc38162ddfa57de26a7b42902c78cffba16f63f57309c6bb79b3d04c954d9f9a16024d18b82c6a"
+  ],
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "rights.dor.json",
+  "headersVersion": "1.0"
+}

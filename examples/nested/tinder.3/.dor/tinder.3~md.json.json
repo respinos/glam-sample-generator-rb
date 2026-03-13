@@ -2,17 +2,17 @@
   "id": "info:root/tinder.3/tinder.3~md.json",
   "parent": "info:root/tinder.3",
   "systemIdentifier": "58961408-61a6-5421-b34d-813d202f096c",
-  "interactionModel": "urn:glam:metadata:tinder",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 2578,
   "mimeType": "application/glam+json",
   "filename": "tinder.3~md.json",
   "digests": [
     "urn:sha-512:a69057d3cdd9a3094cd7442e7749778713295afd04e81f5ad7b855e7b2d88928f340df6118938073369c7cff60150f66277036623659f1ecd01040054a64d33b"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder.3~md.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

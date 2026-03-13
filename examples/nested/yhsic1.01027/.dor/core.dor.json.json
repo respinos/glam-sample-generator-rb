@@ -1,0 +1,27 @@
+{
+  "id": "info:root/yhsic1.01027",
+  "parent": "info:root",
+  "systemIdentifier": "02d3c1b0-f695-55a4-900e-f4ef178fd96d",
+  "stakeholderId": "urn:umich:lib:dor:stakeholder:yhsic1",
+  "alternateId": [
+    {
+      "type": "dlxs",
+      "value": "https://quod.lib.umich.edu/y/yhsic1/01027"
+    },
+    {
+      "type": "nameresolver",
+      "value": "IC-YHSIC1-X-01027]1"
+    }
+  ],
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:glam",
+  "contentSize": 175,
+  "digests": [
+    "urn:sha-512:9b7c8231d70b1f9e711a459abb88d6d392828f761d76c474ffdfc4c2086930d95a903ec9a14dc252656614506996fb0da482ec44e644fdf2e809ce0aa2ed8c9a"
+  ],
+  "updatedAt": "2025-10-28T16:21:47-04:00",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

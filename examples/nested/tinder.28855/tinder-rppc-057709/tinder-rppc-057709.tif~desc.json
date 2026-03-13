@@ -1,6 +1,8 @@
 {
-  "use": [
-    "function:source",
-    "format:image"
+  "format": [
+    "image"
+  ],
+  "function": [
+    "source"
   ]
 }

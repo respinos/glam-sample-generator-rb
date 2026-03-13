@@ -2,17 +2,17 @@
   "id": "info:root/sclib.9015078576785/sclib.9015078576785.36838_0001-heap-a~md.json",
   "parent": "info:root/sclib.9015078576785",
   "systemIdentifier": "cbfc578f-1e6b-51e4-9501-8f8dd04e5d7e",
-  "interactionModel": "urn:glam:metadata:sclib",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 1043,
   "mimeType": "application/glam+json",
   "filename": "sclib.9015078576785.36838_0001-heap-a~md.json",
   "digests": [
     "urn:sha-512:8e962a29f761ccadfaf10f44fe72a2c265eb9d0b28f19dbeb6bc9affda93cfb3773a8a63984606de5a71d8428a7eb1b6638cd243f3af506d357f10ce75986ccb"
   ],
-  "lastModifiedDate": "2023-09-06T16:20:48-04:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2023-09-06T16:20:48-04:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "sclib.9015078576785.36838_0001-heap-a~md.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

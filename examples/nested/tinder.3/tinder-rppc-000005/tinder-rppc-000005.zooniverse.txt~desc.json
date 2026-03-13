@@ -1,6 +1,9 @@
 {
-  "use": [
-    "function:source",
-    "format:text-plain"
-  ]
+  "format": [
+    "text-plain"
+  ],
+  "function": [
+    "source"
+  ],
+  "section": "files"
 }

@@ -2,17 +2,16 @@
   "id": "info:root/tinder.28855/tinder-rppc-057709/tinder-rppc-057709.tif~desc.json",
   "parent": "info:root/tinder.28855/tinder-rppc-057709",
   "systemIdentifier": "f0e4d88a-bc26-5af3-8e7b-fd6e07911732",
-  "interactionModel": "urn:glam:use",
-  "contentSize": 60,
-  "mimeType": "application/use+json",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:description",
+  "contentSize": 67,
   "filename": "tinder-rppc-057709/tinder-rppc-057709.tif~desc.json",
   "digests": [
-    "urn:sha-512:3f49c346c3884c99d500af457b9fcd312fa41af54f1f554ad5f06f42ff09005f5ccd3f489dc0dba3418ecf8b5305d0a39e444f9229597b26b2ebace5ac4b1dd3"
+    "urn:sha-512:0ff4c94a989d448b6dd958614fb7787e4a0adb40c39649717350a3063f53f00d5ac2c1b61eceda2f6f163c33ed9927097b35903d421bd59173c69896e1799526"
   ],
-  "lastModifiedDate": "2025-11-05T15:34:56-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-11-05T15:34:56-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "tinder-rppc-057709.tif~desc.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

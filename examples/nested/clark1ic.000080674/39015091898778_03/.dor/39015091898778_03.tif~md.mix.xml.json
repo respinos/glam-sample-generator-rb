@@ -2,17 +2,17 @@
   "id": "info:root/clark1ic.000080674/39015091898778_03/39015091898778_03.tif~md.mix.xml",
   "parent": "info:root/clark1ic.000080674/39015091898778_03",
   "systemIdentifier": "0432a12e-0515-5d64-b0c1-f4d94fd9c1fb",
-  "interactionModel": "urn:glam:metadata",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 3162,
   "mimeType": "application/mix+xml",
   "filename": "39015091898778_03/39015091898778_03.tif~md.mix.xml",
   "digests": [
     "urn:sha-512:3cad7135664a4eccd8ebf4e82532aae4cff8e69cbd1d90dc5180478961d2f91acdc6cf5f47f72420407a0af22d69d5da81a0c2937912fa79437a9bbc9a4f159d"
   ],
-  "lastModifiedDate": "2026-01-30T16:33:55-05:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2026-01-30T16:33:55-05:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "39015091898778_03.tif~md.mix.xml",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }

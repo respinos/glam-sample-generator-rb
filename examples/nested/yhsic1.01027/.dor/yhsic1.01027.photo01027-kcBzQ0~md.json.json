@@ -2,17 +2,17 @@
   "id": "info:root/yhsic1.01027/yhsic1.01027.photo01027-kcBzQ0~md.json",
   "parent": "info:root/yhsic1.01027",
   "systemIdentifier": "cec48e5d-a97a-56f7-b4c9-16c0b57e6853",
-  "interactionModel": "urn:glam:metadata:yhsic1",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
   "contentSize": 175,
   "mimeType": "application/dc+json",
   "filename": "yhsic1.01027.photo01027-kcBzQ0~md.json",
   "digests": [
     "urn:sha-512:9b7c8231d70b1f9e711a459abb88d6d392828f761d76c474ffdfc4c2086930d95a903ec9a14dc252656614506996fb0da482ec44e644fdf2e809ce0aa2ed8c9a"
   ],
-  "lastModifiedDate": "2025-10-28T16:21:47-04:00",
-  "lastModifiedBy": "dlxsadm",
+  "updatedAt": "2025-10-28T16:21:47-04:00",
+  "updatedBy": "dlxsadm",
   "deleted": false,
-  "visibility": "public",
+  "visibility": "visible",
   "contentPath": "yhsic1.01027.photo01027-kcBzQ0~md.json",
-  "headersVersion": "1.0.draft"
+  "headersVersion": "1.0"
 }
