@@ -36,4 +36,20 @@ In a submission package --- you'll recall this is a BagIt container --- the glam
 
 Sorry about that.
 
+## How to validate with the schemas?
+
+One option, after installing `ajv` (this is global, you do you):
+
+```
+npm install -g ajv-cli ajv-formats
+```
+
+Then:
+
+```
+ajv validate --spec=draft2020 -c ajv-formats --validate-formats=true -s ./schemas/submission_header.json -d examples/nested/tinder.3/.dor/core.dor.json.json
+
+# to validate against the preservation header schema
+ajv validate --spec=draft2020 -c ajv-formats --validate-formats=true -s ./schemas/preservation_header.json -r ./schemas/submission_header.json -d examples/nested/tinder.3/.dor/core.dor.json.json
+```
 

@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$comment": "schema ids are URLs to facilitate references",
   "$id": "https://umich.edu/schemas/submission_header.json",
   "type": "object",
   "properties": {
@@ -70,8 +71,8 @@
     "updatedAt",
     "headersVersion"
   ],
-  "$comment": "Non-resources have additional properties",
-"allOf": [
+  "$comment": "Variations based on interactionModel",
+  "allOf": [
     {
       "if": {
         "properties": {
