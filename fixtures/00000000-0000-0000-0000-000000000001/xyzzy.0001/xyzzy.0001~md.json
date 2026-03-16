@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sul-dlss/dor-services-app/main/schema/metadata/description.json",
+  "xyzzy.title": ["This is a folio"],
+  "xyzzy.author": ["Sir Eldrin Galehand"],
+  "xyzzy.pub_date": ["1723"],
+  "xyzzy.review": ["Some comments about this folio."]
+}

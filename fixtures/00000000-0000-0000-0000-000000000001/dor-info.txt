@@ -1,0 +1,6 @@
+Root-Identifier: xyzzy.0001
+Resource-Type: urn:umich:lib:dor:resource:glam
+Action: Commit
+Agent-Username: bjensen
+Agent-Email: bjensen@umich.edu
+Version-Message: Adding some content
