@@ -290,6 +290,7 @@ records.each do |record|
       next if v.is_a?(String) && v.empty?
       next unless k.start_with?("istruct_") || k.start_with?("m_")
       datum[k] = v.is_a?(String) ? v.split('|||') : v
+      datum[k].flatten! if datum[k].is_a?(Array)
     end
     f.write(JSON.pretty_generate(datum))
   end  
@@ -325,6 +326,7 @@ File.open(core_md.resource_path, "w") do |f|
     dc_k = DC_MAP[k]
     STDERR.puts "?? #{dc_k} :: #{k}"
     datum[dc_k] = [value] unless value.empty?
+    datum[dc_k].flatten! if datum[dc_k].is_a?(Array)
   end
   f.write(JSON.pretty_generate(datum))
 end
@@ -367,6 +369,7 @@ records.each do |record|
       end
       dc_k = DC_MAP[k]
       datum[dc_k] = [value] unless value.empty?
+      datum[dc_k].flatten! if datum[dc_k].is_a?(Array)
     end
     f.write(JSON.pretty_generate(datum))
   end

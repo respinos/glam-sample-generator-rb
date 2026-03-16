@@ -3,11 +3,11 @@
   "parent": "info:root/tinder.28855",
   "systemIdentifier": "f2fb4ff4-2bd8-5075-b218-eb2c24945063",
   "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
-  "contentSize": 60,
+  "contentSize": 46,
   "mimeType": "application/dc+json",
   "filename": "tinder.28855.tinder-rppc-057710-Y-HXkA~md.json",
   "digests": [
-    "urn:sha-512:af6f6a771b07f1115165fbb18d3406f5204349c1a656e0ed5f84844418146f2f4ddd50645fb459a69a612a7a3ec14843e88ce1327a94c3b70deb814cf57fdfb6"
+    "urn:sha-512:65838fbf6492d6c90bfbfa1820e372e203a97a096572d76b81c8e852e17792dba09c30efeee6530c589a02ed2850f899ecdf885159084c511d16f7b5b619fcaa"
   ],
   "updatedAt": "2025-11-05T15:34:56-05:00",
   "updatedBy": "dlxsadm",

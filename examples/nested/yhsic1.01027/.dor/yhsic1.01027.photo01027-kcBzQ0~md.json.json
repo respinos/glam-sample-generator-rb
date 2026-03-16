@@ -3,11 +3,11 @@
   "parent": "info:root/yhsic1.01027",
   "systemIdentifier": "cec48e5d-a97a-56f7-b4c9-16c0b57e6853",
   "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
-  "contentSize": 175,
+  "contentSize": 133,
   "mimeType": "application/dc+json",
   "filename": "yhsic1.01027.photo01027-kcBzQ0~md.json",
   "digests": [
-    "urn:sha-512:9b7c8231d70b1f9e711a459abb88d6d392828f761d76c474ffdfc4c2086930d95a903ec9a14dc252656614506996fb0da482ec44e644fdf2e809ce0aa2ed8c9a"
+    "urn:sha-512:4574e1912402770ab3c0f62ff14a9b1c25d0158e77fe74e801d454391b78516ebf758e9e2e5aebdf31414b743b1962b698d80fea9b535f497f415c1f29e129a6"
   ],
   "updatedAt": "2025-10-28T16:21:47-04:00",
   "updatedBy": "dlxsadm",
