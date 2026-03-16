@@ -3,11 +3,11 @@
   "parent": "info:root/xyzzy.0001",
   "systemIdentifier": "3929e3c8-a467-5a8c-96da-b371369baac5",
   "interactionModel": "urn:umich:lib:dor:model:2026:structure",
-  "contentSize": 304,
+  "contentSize": 305,
   "digests": [
-    "urn:sha-512:c0125b9e9b8566d910bea7f629bf4e752135e968691981f1efb6c4ef402a29ac3ba649e83add21ff5e71f353934eeedc9f16d33916272f642db137749650d0cb"
+    "urn:sha-512:9b6a407690834fccd65669414d566506b2b61b79497261a621ad0c6677a2f5e92803a91b362f314d73f2e7e788a5b921838be622a8e3ae7f1d9474c94dd834ca"
   ],
-  "updatedAt": "2026-03-16T15:29:14Z",
+  "updatedAt": "2026-03-16T16:59:14Z",
   "updatedBy": "dlxsadm",
   "deleted": false,
   "visibility": "visible",
