@@ -1,0 +1,16 @@
+{
+  "id": "info:root/xyzzy.0256/structure.dor.xml",
+  "parent": "info:root/xyzzy.0256",
+  "systemIdentifier": "3929e3c8-a467-5a8c-96da-b371369baac5",
+  "interactionModel": "urn:umich:lib:dor:model:2026:structure",
+  "contentSize": 406,
+  "digests": [
+    "urn:sha-512:56f5e7023bd5cb3f4b675745c44aa2f428cafda99c59f700a62b8e413c72faa57d18ea99f82e6cd66933632f31af068ab2cbe9d699e66d1f8e5a244ea71e8cfa"
+  ],
+  "updatedAt": "2026-03-16T17:57:16Z",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "structure.dor.xml",
+  "headersVersion": "1.0"
+}

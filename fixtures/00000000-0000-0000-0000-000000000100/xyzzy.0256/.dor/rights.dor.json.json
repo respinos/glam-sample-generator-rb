@@ -1,0 +1,16 @@
+{
+  "id": "info:root/xyzzy.0256/rights.dor.json",
+  "parent": "info:root/xyzzy.0256",
+  "systemIdentifier": "041d2be2-afcb-5ddb-897e-fab30a49a9d2",
+  "interactionModel": "urn:umich:lib:dor:model:2026:rights",
+  "contentSize": 77,
+  "digests": [
+    "urn:sha-512:97ad5aa49450a920a0aba5b99a976d5df2eddcea22b1f7a419415daa18322510baa22e5930fe79647ac97899b7e122af8b24cb09d1690bc5507292b5dfa904e8"
+  ],
+  "updatedAt": "2026-03-16T17:59:31Z",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "rights.dor.json",
+  "headersVersion": "1.0"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "info:root/xyzzy.0256/pamphlet/pamphlet.txt~md.textmd.xml~desc.json",
+  "parent": "info:root/xyzzy.0256/pamphlet",
+  "systemIdentifier": "32bcf196-5eea-586a-8df3-09ddb21d9295",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
+  "contentSize": 57,
+  "mimeType": "application/json",
+  "filename": null,
+  "digests": [
+    "urn:sha-512:6915666e56f708a9788d12454bfe8a6a5c03fdc95f42f15ff70176e34683f5a5b9b769214664a53bc3d4870544fd91ee95e3f99240317271787ca89afea8563c"
+  ],
+  "updatedAt": "2026-03-16T18:02:45Z",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "pamphlet.txt~md.textmd.xml~desc.json",
+  "headersVersion": "1.0"
+}

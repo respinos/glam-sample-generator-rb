@@ -321,7 +321,7 @@ File.open(core_md.resource_path, "w") do |f|
     next if k == "dc_ri"
     value = []
     v.each do |fld, _|
-      value << record[fld.to_sym] unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
+      value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
     end
     dc_k = DC_MAP[k]
     STDERR.puts "?? #{dc_k} :: #{k}"
@@ -337,7 +337,7 @@ File.open(rights_md.resource_path, "w") do |f|
   rights_statement = if xcoll_map["dc_ri"]["_"].nil?
     value = []
     xcoll_map["dc_ri"].keys.each do |fld|
-      value << record[fld.to_sym] unless ( record[fld.to_sym].nil? )
+      value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? )
     end
     value.join(' / ')
   else
@@ -365,7 +365,7 @@ records.each do |record|
         end
       end
       v.each do |fld, _|
-        value << record[fld.to_sym] unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
+        value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
       end
       dc_k = DC_MAP[k]
       datum[dc_k] = [value] unless value.empty?

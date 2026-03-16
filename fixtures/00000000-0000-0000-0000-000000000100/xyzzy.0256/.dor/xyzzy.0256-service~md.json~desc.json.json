@@ -1,0 +1,18 @@
+{
+  "id": "info:root/xyzzy.0256/xyzzy.0256-service~md.json~desc.json",
+  "parent": "info:root/xyzzy.0256",
+  "systemIdentifier": "fe00934e-d976-5bd2-8103-3ed9548d18c6",
+  "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
+  "contentSize": 55,
+  "mimeType": "application/json",
+  "filename": null,
+  "digests": [
+    "urn:sha-512:32ef5ca5cba19cdf4eeddbc554daf7487fead63ea311ec4a840f21b6f8c9798f2c93a49833cc35d1fd73b4ad5bf09d7267b62f10459b09e2bb301c328ed63224"
+  ],
+  "updatedAt": "2026-03-16T18:09:55Z",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "xyzzy.0256-service~md.json~desc.json",
+  "headersVersion": "1.0"
+}

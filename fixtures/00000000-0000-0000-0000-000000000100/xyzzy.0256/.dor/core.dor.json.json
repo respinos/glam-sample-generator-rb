@@ -1,0 +1,16 @@
+{
+  "id": "info:root/xyzzy.0256",
+  "parent": "info:root",
+  "systemIdentifier": "a2745177-391a-5754-90b7-0c71abfa2766",
+  "interactionModel": "urn:umich:lib:dor:model:2026:resource:glam",
+  "contentSize": 138,
+  "digests": [
+    "urn:sha-512:cf3ddca6e4ba741f374316019cf991990515f78aac30cab9c3272049931cec2a9cf86ed22591445ce6870c8f69e68f5ed6895835ff7186ef9cda70c9dbf0342e"
+  ],
+  "updatedAt": "2026-03-16T17:55:26Z",
+  "updatedBy": "dlxsadm",
+  "deleted": false,
+  "visibility": "visible",
+  "contentPath": "core.dor.json",
+  "headersVersion": "1.0"
+}

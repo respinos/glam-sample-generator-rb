@@ -3,11 +3,11 @@
   "parent": "info:root/clark1ic.000080674",
   "systemIdentifier": "d10066e4-a471-5c4a-ab6c-5613d05877bb",
   "interactionModel": "urn:umich:lib:dor:model:2026:file:metadata",
-  "contentSize": 1029,
+  "contentSize": 1059,
   "mimeType": "application/dc+json",
   "filename": "clark1ic.000080674.39015091898778_04-zKIIJu~md.json",
   "digests": [
-    "urn:sha-512:1eb89d87cf3d5bbf0a6f0c51c52e249d9574855d67957f06a2153087db00a99a918588df99056a8d5a94ab2190c039bab22064e5a92f4b744342dc2ec6a57637"
+    "urn:sha-512:f8294e64b9caebf19fd15f2ac8462b54ef75cb97061fe2a293d54fb448f4f4ce35ce2cbbe4250b27e89157e89eefc41e6f6fa201f77cc873c1976561dc33ae5b"
   ],
   "updatedAt": "2026-01-30T16:33:55-05:00",
   "updatedBy": "dlxsadm",
