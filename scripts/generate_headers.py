@@ -37,10 +37,13 @@ def guess_file_info(file_path: Path) -> dict:
     # Match specific filenames
     if basename == "core.dor.json":
         info["interactionModel"] = dor_urn("resource:glam")
+        info["mimeType"] = "application/json"
     elif basename == "structure.dor.xml":
         info["interactionModel"] = dor_urn("structure")
+        info["mimeType"] = "application/xml"
     elif basename == "rights.dor.json":
         info["interactionModel"] = dor_urn("rights")
+        info["mimeType"] = "application/json"
     
     if info:
         return info
@@ -120,6 +123,8 @@ def main():
 
             if "mimeType" in info:
                 header_data["mimeType"] = info["mimeType"]
+
+            if "filename" in info and info["filename"]:
                 header_data["filename"] = info.get("filename")
 
             header_data.update({
