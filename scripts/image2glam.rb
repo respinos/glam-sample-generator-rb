@@ -7,91 +7,27 @@ require 'ostruct'
 require 'fileutils'
 require 'json'
 require 'nanoid'
-require 'digest'
 require 'pp'
 require 'builder'
 require 'nokogiri'
 require 'open3'
 require 'debug'
 require 'tty-command'
-require 'digest'
-require 'uuidtools'
 
-def DOR(leaf)
-  "urn:umich:lib:dor:model:2026:#{leaf}"
-end
-
-ResourceFile = Struct.new(:filename, :function, :format, :section, :interactionModel, :mimeType, :alternateId, keyword_init: true) do
-  attr_reader :system_identifier
-  def initialize(*args)
-    super(*args)
-    @system_identifier = UUIDTools::UUID.sha1_create($namespace_uuid, filename).to_s
-  end
-
-  def resource_path
-    File.join($resource_path, filename)
-  end
-
-  def header_path(rooted)
-    if rooted
-      File.join($header_path, "#{filename}.json")
-    else
-      File.join($resource_path, File.dirname(filename), ".dor", "#{File.basename(filename)}.json")
-    end
-  end
-  
-  def desc
-    self.class.new(
-      filename: "#{filename}~desc.json",
-      format: format,
-      function: function,
-      section: section,
-      interactionModel: DOR("file:description"),
-    )
-  end
-
-  def self.integer_to_uuid_v5(i)
-    # Convert namespace UUID to binary
-    ns_bin = [$namespace_uuid.gsub('-', '')].pack('H*')
-    
-    # SHA1 hash of namespace + the integer string
-    hash = Digest::SHA1.digest(ns_bin + i.to_s)
-    
-    # Set version (5) and variant (RFC 4122) bits
-    ary = hash.unpack('NnnnnN')
-    ary[2] = (ary[2] & 0x0fff) | 0x5000 # Version 5
-    ary[3] = (ary[3] & 0x3fff) | 0x8000 # Variant bits
-    
-    "%08x-%04x-%04x-%04x-%04x%08x" % ary
-  end
-end
-
-Random.srand(1001)
-
-cmd = TTY::Command.new(printer: :null)
-
-DC_MAP = {}
-DC_MAP["dc_ri"] = "dc.rights"
-DC_MAP["dc_ti"] = "dc.title"
-DC_MAP["dc_cr"] = "dc.creator"
-DC_MAP["dc_su"] = "dc.subject"
-DC_MAP["dc_de"] = "dc.description"
-DC_MAP["dc_so"] = "dc.source"
-DC_MAP["dc_fo"] = "dc.format"
-DC_MAP["dc_da"] = "dc.date"
-DC_MAP["dc_id"] = "dc.identifier"
-DC_MAP["dc_rel"] = "dc.relation"
-DC_MAP["dc_type"] = "dc.type"
-DC_MAP["dc_la"] = "dc.language"
-DC_MAP["dc_cov"] = "dc.coverage"
-DC_MAP["dc_gen"] = "dc.genre"
+require_relative '../lib/dor'
+require_relative '../lib/dor/headers'
+require_relative '../lib/dlxs'
+require_relative '../lib/dlxs/utils'
 
 config = IniFile.load("#{ENV['DLXSROOT']}/bin/i/image/etc/package.conf")
-db = Sequel.connect(:adapter=>'mysql2', :host=>config['mysql']['host'], :database=>config['mysql']['database'], :user=>config['mysql']['user'], :password=>config['mysql']['password'], :encoding => 'utf8mb4')
-db.extension :select_remove
+$db = Sequel.connect(:adapter=>'mysql2', :host=>config['mysql']['host'], :database=>config['mysql']['database'], :user=>config['mysql']['user'], :password=>config['mysql']['password'], :encoding => 'utf8mb4')
+$db.extension :select_remove
+
+$include_system_identifiers = false
+$include_updated_by = false
 
 options = OpenStruct.new()
-options.rooted = false
+options.output_path = "examples"
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
@@ -100,111 +36,47 @@ OptionParser.new do |opts|
   opts.on("--m_id M_ID", "m_id") do |c|
     options.m_id = c
   end
-  opts.on("--m_iid M_IID", "m_iid") do |c|
-    options.m_iid = c
+  opts.on("--partner PARTNER", "partner") do |c|
+    options.partner = c
   end
-  opts.on("--stakeholder STAKEHOLDER", "stakeholder") do |c|
-    options.stakeholder = c
-  end
-  opts.on("--[no-]rooted", "rooted mode") do |v|
-    options.rooted = v
+  opts.on("--output_path OUTPUT_PATH", "output path") do |c|
+    options.output_path = c
   end
   opts.on("--debug", "debug mode") do |v|
     options.debug = v
   end
+  opts.on("--system_identifiers", "include system identifiers in header") do |v|
+    $include_system_identifiers = true
+    $include_updated_by = true
+  end
 end.parse!
 
-if options.stakeholder.nil?
-  options.stakeholder = options.collid
+if options.partner.nil?
+  options.partner = options.collid
 end
 
-def calculate_sha512(file_path)
-  # Create a new SHA512 digest object
-  sha512 = Digest::SHA512.new
-  
-  # Open the file in binary read mode ('rb') for cross-platform compatibility
-  File.open(file_path, 'rb') do |file|
-    # Read the file in chunks and update the digest object
-    # The digest object can handle incremental updates
-    buffer = ''
-    while file.read(1024, buffer)
-      sha512.update(buffer)
-    end
-  end
-  
-  # Return the final hexdigest (a 128-character hexadecimal string)
-  sha512.hexdigest
-end
+Random.srand(1001)
 
-def nanoid()
-  Nanoid.generate(size: 6, non_secure: true)
-end
+collection = DLXS::Collection.new(options.collid)
 
-def _field2map(s)
-  mapping = {}
-  if s.nil?
-    return mapping
-  end
-  lines = s.split("|")
-  lines.each do |line|
-    if not line.empty?
-      key, values = line.split(':::')
-      key.downcase!
-      mapping[key] = {}
-      if values.nil?
-        mapping[key][key] = 1
-      elsif values[0] == '"'
-        mapping[key]['_'] = values
-      else
-        values.split(' ').each do |value|
-          mapping[key][value.downcase] = 1
-        end
-      end
-    end
-  end
-  mapping
-end
-
-def write_description(desc)
-  File.open(desc.resource_path, "w") do |f|
-    data = {}
-    data["format"] = desc.format unless desc.format.nil?
-    data["function"] = desc.function unless desc.function.nil?
-    data["section"] = desc.section unless desc.section.nil?
-    f.write(JSON.pretty_generate(data))
-  end
-  desc
-end
-
-$namespace_uuid = MY_NAMESPACE = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, options.collid)
-
-# 1. fetch the collection configuration
-collection = db.fetch("SELECT * FROM ImageClass a JOIN Collection b ON a.collid = b.collid AND a.userid = b.userid WHERE a.collid = ? AND a.userid = 'dlxsadm'", options.collid).first
-admin_map = _field2map(collection[:field_admin_maps])
-xcoll_map = _field2map(collection[:field_xcoll_maps])
-if xcoll_map["dc_ri"].nil? and ! xcoll_map["dlxs_ri"].nil?
-  xcoll_map["dc_ri"] = xcoll_map["dlxs_ri"]
-end
-if xcoll_map["dc_ti"].nil? and ! xcoll_map["dlxs_ma"].nil?
-  xcoll_map["dc_ti"] = xcoll_map["dlxs_ma"]
-end
-data_table = collection[:data_table]
-media_table = collection[:media_table]
+data_table = collection.config[:data_table]
+media_table = collection.config[:media_table]
 
 # 2. fetch a realistic updated_at
-table_metadata = db.fetch("SELECT * FROM information_schema.tables WHERE table_schema = ? AND table_name = ?", 'dlxs', data_table).first
-$updated_at = table_metadata[:UPDATE_TIME]
-
-# 3. fetch the folio metadata for the folio
-record = {}
-row = db[data_table.to_sym].select_remove(:dlxs_sha).where(ic_id: options.m_id).first
-row.keys.each do |k|
-  record[k.downcase.to_sym] = row[k]
-end
+table_metadata = $db.fetch("SELECT * FROM information_schema.tables WHERE table_schema = ? AND table_name = ?", 'dlxs', data_table).first
+$updated_at = table_metadata[:UPDATE_TIME].to_datetime.to_s
 
 # fetch the folio and sheet metadata
 records = []
-db[data_table.to_sym].join(media_table.to_sym, m_id: :ic_id).where(ic_id: options.m_id).order(:istruct_x, :istruct_y).all.each do |row|
+$db[data_table.to_sym]
+  .join(media_table.to_sym, m_id: :ic_id)
+  .select_remove(:dlxs_sha)
+  .select_remove(:ic_all)
+  .select_remove(:pk_id)
+  .select_remove(:m_rand)
+  .where(ic_id: options.m_id)
+  .order(:istruct_x, :istruct_y)
+  .all.each do |row|
   record = {}
   row.each do |k, v|
     record[k.downcase.to_sym] = v
@@ -212,24 +84,48 @@ db[data_table.to_sym].join(media_table.to_sym, m_id: :ic_id).where(ic_id: option
   record[:m_id].downcase!
   record[:m_iid].downcase!
   record[:m_fn].downcase! unless record[:m_fn].nil?
-  records << record
+  records << DLXS::Record.new(record)
 end
 
-# make the record path
-$output_path = options.rooted ? "examples/rooted" : "examples/nested"
-if options.debug
-  $output_path.gsub!("examples/", "data/")
+puts ":: #{collection.config[:collname]}"
+local_identifier = "#{options.collid}.#{options.m_id}"
+submission_path = File.join(options.output_path, DOR::calculate_uuid(local_identifier, $submission_uuid))
+if File.exist?(submission_path)
+  FileUtils.rm_rf(submission_path)
 end
-$local_identifier = "#{options.collid}.#{options.m_id}"
-$resource_path = "#{$output_path}/#{$local_identifier}"
-if File.exist?($resource_path)
-  FileUtils.rm_rf($resource_path)
+data_path = File.join(submission_path, "data")
+STDERR.puts ":: exporting to #{submission_path}"
+FileUtils.mkdir_p(data_path)
+File.open(File.join(submission_path, "dor-info.txt"), "w") do |f|
+  f.puts "Root-Identifier: #{local_identifier}"
+  f.puts "Resource-Type: #{DOR::URN("resource:glam")}"
+  f.puts "Action: Commit"
+  f.puts "Agent-Name: Barbara Jensen"
+  f.puts "Agent-Address: mailto:bjensen@umich.edu"
+  f.puts "Version-Message: Migrating #{local_identifier} from DLXS"
 end
-FileUtils.mkdir_p("#{$resource_path}/.dor")
-$resource_path = $resource_path
-$header_path = "#{$resource_path}/.dor"
 
-SKIP_FIELDS = [
+resource = DOR::Resource.new("#{options.collid}.#{options.m_id}")
+resource.setup!(data_path)
+resource.add_file(
+  DOR::ResourceFile.new(
+    id: resource.id,
+    parent: nil,
+    content_path: "core.dor.json",
+    mime_type: "application/json",
+    interaction_model: DOR::URN("resource"),
+    alternate_id: [
+      { type: "urn:umich:lib:dlxs:url", value: "https://quod.lib.umich.edu/#{options.collid[0]}/#{options.collid}/#{options.m_id}/#{options.m_iid}" },
+      { type: "urn:umich:lib:dlxs:nameresolver", value: "IC-#{options.collid.upcase}-X-#{records[0].m_id}]1" },
+    ],
+    partner_id: "info:partner/#{options.partner}",
+    content: JSON.pretty_generate(records[0].service_metadata(collection.xcoll_map)),
+    updated_at: $updated_at
+  )
+)
+
+# identify which metadata fields are used in the m_iid metadata
+resource_ignore_fields = [
   :ic_id, 
   :ic_all, 
   :dlxs_sha, 
@@ -249,309 +145,238 @@ SKIP_FIELDS = [
   :istruct_y,
   :istruct_caption,
   :m_caption,
+  :dc_ri,
+  :dlxs_ri,
+  :dlxs_ma
 ]
-
-# write the record metadata: skip the ic_vi and ic_fn fields
-
-generated_files = []
-source_md = ResourceFile.new(filename: "#{$local_identifier}~md.json", function: ["source"], section: "metadata", interactionModel: DOR("file:metadata"), mimeType: "application/glam+json")
-File.open(source_md.resource_path, "w") do |f|
-  datum = {}
-  record.each do |k, v|
-    next if SKIP_FIELDS.include?(k)
-    # next if v.nil?
-    next if v.is_a?(String) && v.empty?
-    if admin_map["ic_vi"].include?(k.to_s)
-      next
-    end
-    if admin_map["ic_fn"].include?(k.to_s)
-      next
-    end
-    if admin_map['iiif_plaintext'] && admin_map["iiif_plaintext"].include?(k.to_s)
-      next
-    end
-    datum[k] = v.is_a?(String) ? v.split('|||') : v
+admin_map = collection.admin_map
+unless admin_map["ic_vi"].nil?
+  admin_map["ic_vi"].each do |field, _|
+    resource_ignore_fields << field.to_s
   end
-  f.write(JSON.pretty_generate(datum))
 end
-generated_files << source_md
-generated_files << write_description(source_md.desc)
 
-record_mdref_map = {}
+# make the resource service metadata
+source_md_id = "#{resource.id}~md.json"
+service_md_id = "#{resource.id}~md.service.json"
+
+resource.add_file(
+  DOR::ResourceFile.new(
+    id: File.join(resource.id, source_md_id),
+    parent: resource.id,
+    content_path: source_md_id,
+    mime_type: "application/json",
+    interaction_model: DOR::URN("metadata"),
+    function: [DOR::URN("function", "source")],
+    updated_at: $updated_at,
+    content: JSON.pretty_generate(records[0].metadata.reject { |k, _| resource_ignore_fields.include?(k.to_s) || k.to_s.start_with?("istruct_") || k.to_s.start_with?("m_") })
+  )
+)
+
+dc_fields = []
+collection.xcoll_map.keys.each do |k|
+  next unless k.start_with?("dc_")
+  next if k == "dc_ri"
+  dc_fields.concat(collection.xcoll_map[k].keys)
+end
+
+# is there service metadata for the resource? No.
+struct_md_map = {}
 records.each do |record|
-  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", function: ["source"], section: "metadata", interactionModel: DOR("file:metadata"), mimeType: "application/glam+json")
-  record_mdref_map[record[:m_iid]] ||= []
-  record_mdref_map[record[:m_iid]] << vi_md
-  File.open(vi_md.resource_path, "w") do |f|
-    datum = {}
-    record.each do |k, v|
-      next if SKIP_FIELDS.include?(k)
-      # next if v.nil?
-      next if v.is_a?(String) && v.empty?
-      next unless k.start_with?("istruct_") || k.start_with?("m_")
-      datum[k] = v.is_a?(String) ? v.split('|||') : v
-      datum[k].flatten! if datum[k].is_a?(Array)
-    end
-    f.write(JSON.pretty_generate(datum))
-  end  
-  generated_files << vi_md
-  generated_files << write_description(vi_md.desc)
+  record_source_md_id = "#{resource.id}-#{record.m_iid}~md.json"
+  metadata = {}
+  record.metadata.each do |k, v|
+    next if admin_map["ic_vi"].nil?
+    next unless admin_map["ic_vi"].has_key?(k.to_s.downcase)
+    next if v.nil? || (v.is_a?(String) && v.empty?) || (v.is_a?(Array) && v.empty?)
+    metadata[k] = v
+  end
+  resource.add_file(
+    DOR::ResourceFile.new(
+      id: File.join(resource.id, record_source_md_id),
+      parent: resource.id,
+      content_path: record_source_md_id,
+      mime_type: "application/json",
+      interaction_model: DOR::URN("metadata"),
+      function:[ DOR::URN("function", "source")],
+      updated_at: $updated_at,
+      content: JSON.pretty_generate(metadata)
+    )
+  )
+
+  record_service_md_id = "#{resource.id}-#{record.m_iid}~md.service.json"
+  resource.add_file(
+    DOR::ResourceFile.new(
+      id: File.join(resource.id, record_service_md_id),
+      parent: resource.id,
+      content_path: record_service_md_id,
+      mime_type: "application/json",
+      interaction_model: DOR::URN("metadata"),
+      function: [DOR::URN("function", "service")],
+      updated_at: $updated_at,
+      content: JSON.pretty_generate(record.service_metadata(collection.xcoll_map))
+    )
+  )
+
+  unless record.m_fn.nil?
+    struct_md_map[record.m_fn] = [source_md_id]
+    struct_md_map[record.m_fn] << record_source_md_id
+    struct_md_map[record.m_fn] << record_service_md_id
+  end
 end
 
-core_md = ResourceFile.new(filename: "core.dor.json", interactionModel: DOR("resource:glam"), alternateId: "#{options.m_id}")
-File.open(core_md.resource_path, "w") do |f|
-  rights_statement = if xcoll_map["dc_ri"]["_"].nil?
-    value = []
-    xcoll_map["dc_ri"].keys.each do |fld|
-      value << record[fld.to_sym] unless ( record[fld.to_sym].nil? )
-    end
-    value.join(' / ')
-  else
-    xcoll_map["dc_ri"]["_"][1..-2]
-  end
-  datum = {
-    # "id": $local_identifier,
-    # "stakeholderId": options.collid,
-    "rightsStatement": rights_statement,
-    "metadata": {}
-  }
-  datum = {}
-  xcoll_map.each do |k, v|
-    next unless k.start_with?("dc_")
-    next if k == "dc_ri"
-    value = []
-    v.each do |fld, _|
-      value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
-    end
-    dc_k = DC_MAP[k]
-    STDERR.puts "?? #{dc_k} :: #{k}"
-    datum[dc_k] = [value] unless value.empty?
-    datum[dc_k].flatten! if datum[dc_k].is_a?(Array)
-  end
-  f.write(JSON.pretty_generate(datum))
-end
-generated_files << core_md
+# generate rights.dor.json
+rights_data = {}
+rights_statement = records[0].rights_statement(collection.xcoll_map)
+resource.add_file(
+  DOR::ResourceFile.new(
+    id: File.join(resource.id, "rights.dor.json"),
+    parent: resource.id,
+    content_path: "rights.dor.json",
+    mime_type: "application/json",
+    interaction_model: DOR::URN("rights"),
+    updated_at: $updated_at,
+    content: JSON.pretty_generate({
+      "dc.rights" => rights_statement
+    })
+  )
+)
 
-rights_md = ResourceFile.new(filename: "rights.dor.json", interactionModel: DOR("rights"), mimeType: "application/dc+json")
-File.open(rights_md.resource_path, "w") do |f|
-  rights_statement = if xcoll_map["dc_ri"]["_"].nil?
-    value = []
-    xcoll_map["dc_ri"].keys.each do |fld|
-      value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? )
-    end
-    value.join(' / ')
-  else
-    xcoll_map["dc_ri"]["_"][1..-2]
-  end
-  datum = { "dc.rights" => rights_statement }
-  f.write(JSON.pretty_generate(datum))
-end
-generated_files << rights_md
-# generated_files << write_description(rights_md.desc)
-
-records.each do |record|
-  vi_md = ResourceFile.new(filename: "#{$local_identifier}.#{record[:m_iid]}-#{nanoid()}~md.json", function: ["service"], section: "metadata", interactionModel: DOR("file:metadata"), mimeType: "application/dc+json")
-  record_mdref_map[record[:m_iid]] << vi_md
-  File.open(vi_md.resource_path, "w") do |f|
-    datum = {}
-    xcoll_map.each do |k, v|
-      next unless k.start_with?("dc_")
-      next if k == "dc_ri"
-      value = []
-      STDERR.puts "#{k} -> #{v.keys.join(' / ')}"
-      if k == 'dc_ti'
-        v.keys.each do |fld|
-          STDERR.puts "== #{fld} :: #{record[fld.to_sym]}"
-        end
-      end
-      v.each do |fld, _|
-        value << record[fld.to_sym].split('|||') unless ( record[fld.to_sym].nil? || (record[fld.to_sym].is_a?(String) && record[fld.to_sym].empty?) )
-      end
-      dc_k = DC_MAP[k]
-      datum[dc_k] = [value] unless value.empty?
-      datum[dc_k].flatten! if datum[dc_k].is_a?(Array)
-    end
-    f.write(JSON.pretty_generate(datum))
-  end
-  generated_files << vi_md
-  generated_files << write_description(vi_md.desc)
-end
-
-structure_file = ResourceFile.new(filename: "structure.dor.xml", interactionModel: DOR("structure"), mimeType: "application/mets+xml")
+# generate structure.dor.xml
 builder = Builder::XmlMarkup.new(:indent => 2)
 builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
 xml = builder.mets :structMap, "xmlns:mets" => "http://www.loc.gov/METS/v2" do |x|
   x.mets :div, :TYPE => "folio" do
     records.each_with_index do |record, idx|
-      mdids = [ "_" + source_md.system_identifier ]
-      record_mdref_map[record[:m_iid]].each do |mdref|
-        mdids << "_" + mdref.system_identifier
-      end
+      mdids = struct_md_map[record.m_fn].map { |mdid|  mdid }
       x.mets :div, :TYPE => "sheet", :ORDER => idx + 1, :ORDERLABEL => idx + 1, :MDID => mdids.join(" ") do      
-        if record[:istruct_ms] == "P"
+        if record.has_media?
           x.mets :div, :TYPE => "canvas" do
-            x.mets :mptr, :LOCATION => "#{$local_identifier}/#{record[:m_fn]}"
+            x.mets :mptr, :LOCTYPE => "URL", :LOCREF => "#{resource.id}/#{record.m_fn}"
           end
         end
       end
     end
   end
 end
-File.open(structure_file.resource_path, "w") do |f|
-  f.write(xml)
-end
-generated_files << structure_file
+resource.add_file(
+  DOR::ResourceFile.new(
+    id: File.join(resource.id, "structure.dor.xml"),
+    parent: resource.id,
+    content_path: "structure.dor.xml",
+    mime_type: "application/xml",
+    interaction_model: DOR::URN("structure"),
+    updated_at: $updated_at,
+    content: xml
+  )
+)
 
+DOR::Headers.update_resource_headers(resource.resource_path)
+
+## NOW BUILD THE FILESET RESOURCES
 records.each_with_index do |record, record_index|
-  puts "== WTF #{record[:m_id]} :: #{record[:istruct_ms]}"
-  if record[:istruct_ms] == "P"
-    asset = db[:ImageClassAsset].where(collid: options.collid, basename: record[:m_fn], use: "access").first
-    asset_path = File.join("/quod/asset", asset[:filename])
-    actual_asset_path = File.readlink(asset_path)
-    file_mets_xml = File.join(
-      "/quod/asset",
-      File.dirname(asset[:filename]),
-      actual_asset_path.gsub(".jp2", ".file.mets.xml")
+  next unless record.has_media?
+  fileset_resource = DOR::Resource.new("#{resource.id}/#{record.m_fn}")
+
+  STDERR.puts ":: fileset #{fileset_resource.id}"
+
+  fileset_resource.setup!(data_path)
+  fileset_resource.add_file(
+    DOR::ResourceFile.new(
+      id: fileset_resource.id,
+      parent: resource.id,
+      content_path: "core.dor.json",
+      mime_type: "application/json",
+      interaction_model: DOR::URN("fileset"),
+      alternate_id: [
+        { type: DOR::URN("packaging", "fileset"), value: "info:pending/#{options.collid}/#{record.m_fn}" },
+      ],
+      partner_id: "info:partner/#{options.partner}",
+      content: JSON.pretty_generate({
+        "dc.identifier" => [ "#{options.collid}/#{record.m_fn}" ],
+        "dc.title" => [ record.m_fn ]
+      }),
+      updated_at: $updated_at
     )
+  )
 
-    fileset_identifier = asset[:basename].downcase
-    image_file = ResourceFile.new(filename: "#{fileset_identifier}/#{record[:m_fn]}.tif", function: ["source"], format: ["image"], section: "files", interactionModel: DOR("file:data"), mimeType: "image/tiff")
-    core_md = ResourceFile.new(filename: "#{fileset_identifier}/core.dor.json", interactionModel: DOR("resource:fileset"), mimeType: "application/dc+json")  
+  # generate an asset for the resource
+  asset = $db[:ImageClassAsset].where(collid: options.collid, basename: record.m_fn, use: "access").first
 
-    FileUtils.mkdir_p(File.dirname(image_file.resource_path))
-    FileUtils.mkdir_p(File.dirname(image_file.header_path(options.rooted)))
-    # 1. make fileset_identifier/core.json
-    File.open(core_md.resource_path, "w") do |f|
-      f.write(JSON.pretty_generate({}))
-    end
-    generated_files << core_md
+  asset_path = DLXS::Utils::generate_asset(fileset_resource.resource_path, asset)
 
-    # 2. make fileset_identifier/m_fn.tif
-    out, status = Open3.pipeline([
-      'kdu_expand', 
-      '-i', 
-      asset_path,
-      '-o',
-      image_file.resource_path,
-      '-reduce', asset[:levels].to_s
-    ])
-
-    generated_files << image_file
-
-    # 3. make fileset_identifier/m_fn.tif~desc.json
-    generated_files << write_description(image_file.desc)
-
-    # 4. make fileset_identifier/m_fn.tif-NNNN~md.mix.xml
-    mix_filename = "#{record[:m_fn]}.tif~md.mix.xml"
-    mix_file = ResourceFile.new(filename: "#{fileset_identifier}/#{mix_filename}", function: ["technical"], section: "metadata", interactionModel: DOR("file:metadata"), mimeType: "application/mix+xml")
-    out, status = cmd.run(
-      'jhove',
-      '-c', 'etc/jhove.conf',
-      '-h', 'xml',
-      image_file.resource_path
+  fileset_resource.add_file(
+    asset_file = DOR::ResourceFile.new(
+      id: File.join(fileset_resource.id, asset_path),
+      parent: fileset_resource.id,
+      content_path: File.basename(asset_path),
+      mime_type: "image/tiff",
+      interaction_model: DOR::URN("file", "image"),
+      updated_at: $updated_at,
+      filename: File.basename(asset_path),
+      function: [DOR::URN("function", "source")]
     )
+  )
 
-    doc = Nokogiri::XML(out.to_s) { |config| config.default_xml.noblanks }
-    # jhove_mix_el = doc.at_xpath("//jhove:property[name='NisoImageMetadata']/jhove:values[@type='NISOImageMetadata']/jhove:value/node()", 'jhove' => 'http://hul.harvard.edu/ois/xml/ns/jhove')
-    # jhove_mix_el = doc.at_xpath("//jhove:jhove", 'jhove' => 'http://hul.harvard.edu/ois/xml/ns/jhove')
-    jhove_mix_el = doc.at_xpath('//mix:mix', 'mix' => 'http://www.loc.gov/mix/v20')
-    File.open(mix_file.resource_path, "w") do |f|
-      f.write(jhove_mix_el.to_xml(indent: 2, encoding: 'UTF-8'))
-    end
+  asset_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, asset_path)
 
-    generated_files << mix_file
-    # 5. make fileset_identifier/m_fn.tif-NNNN~md.mix.xml~desc.json
-    generated_files << write_description(mix_file.desc)
-
-    next if admin_map["iiif_plaintext"].nil?
-    plaintext_flds = []
-    if options.collid == 'tinder'
-      # hand weaving
-      key = "fulltext#{record_index + 1}"
-      plaintext_flds << key
-    end
-    text_filename = "#{record[:m_fn]}.zooniverse.txt"
-    text_file = ResourceFile.new(filename: "#{fileset_identifier}/#{text_filename}", function: ["source"], format: ["text-plain"], section: "files", interactionModel: DOR("file:data"), mimeType: "text/plain")
-    File.open(text_file.resource_path, "w") do |f|
-      values = []
-      plaintext_flds.each do |fld|
-        value = record[fld.to_sym]
-        values << value.split('|||') unless ( value.nil? || (value.is_a?(String) && value.empty?) )
-      end
-      values.flatten!
-      f.write(values.join("\n"))
-    end
-    if File.size(text_file.resource_path) == 0
-      FileUtils.rm(text_file.resource_path)
-      next
-    end
-    generated_files << text_file
-    generated_files << write_description(text_file.desc)
-
-    text_md_file = ResourceFile.new(filename: "#{fileset_identifier}/#{text_filename}~md.textmd.xml", format: ["technical"], section: "metadata",  interactionModel: DOR("file:metadata"), mimeType: "application/textmd+xml")
-    out, status = cmd.run(
-      'jhove',
-      '-c', 'etc/jhove.conf',
-      '-h', 'xml',
-      '-m', 'UTF8-hul',
-      text_file.resource_path
+  fileset_resource.add_file(
+    DOR::ResourceFile.new(
+      id: File.join(fileset_resource.id, asset_md_path),
+      parent: fileset_resource.id,
+      content_path: File.basename(asset_md_path),
+      mime_type: "application/xml",
+      interaction_model: DOR::URN("metadata", "mix"),
+      updated_at: $updated_at,
+      filename: File.basename(asset_md_path),
+      function: [DOR::URN("function", "technical")]
     )
-    doc = Nokogiri::XML(out.to_s) { |config| config.default_xml.noblanks }
-    jhove_textmd_el = doc.at_xpath('//textmd:textMD', 'textmd' => 'info:lc/xmlns/textMD-v3')
-    File.open(text_md_file.resource_path, "w") do |f|
-      f.write(jhove_textmd_el.to_xml(indent: 2, encoding: 'UTF-8'))
-    end
-    generated_files << text_file
-    generated_files << write_description(text_file.desc)
+  )
+
+  plaintext_flds = admin_map["iiif_plaintext"]&.keys || []
+  if options.collid == 'tinder'
+    plaintext_flds = [ "fulltext#{record_index + 1}" ]
   end
-end
+  if record.has_plaintext?(plaintext_flds)
 
-generated_files.each do |resource_file|
-  STDERR.puts ":: processing #{resource_file.filename}"
-  output_filename = resource_file.header_path(options.rooted)
-  File.open(output_filename, "w") do |f|
-    parent_id = File.join(["info:root", $local_identifier, File.dirname(resource_file.filename)].grep_v(/^\.$/))
-    datum = {}
-    datum["id"] = "info:root/#{$local_identifier}/#{resource_file.filename}"
-    datum["parent"] = parent_id
-    if datum["id"].end_with?("core.dor.json")
-      datum["id"] = File.dirname(datum["id"])
-      datum["parent"] = File.dirname(datum["parent"])
-    end
-    # datum["stakeholderId"] = options.collid
-    datum["systemIdentifier"] = resource_file.system_identifier
-    if resource_file.interactionModel.start_with?("urn:umich:lib:dor:model:2026:resource:")
-      datum["stakeholderId"] = "urn:umich:lib:dor:stakeholder:#{options.stakeholder}"
-      unless resource_file.alternateId.nil?
-        datum["alternateId"] = [
-          {
-            "type": "dlxs",
-            "value": "https://quod.lib.umich.edu/#{options.collid[0]}/#{options.collid}/#{resource_file.alternateId}"
-          },
-          {
-            "type": "nameresolver",
-            "value": "IC-#{options.collid.upcase}-X-#{resource_file.alternateId}]1"
-          }
-        ]
-      end
-    end
-    datum["interactionModel"] = resource_file.interactionModel
-    datum["contentSize"] = File.size(resource_file.resource_path)
-    if resource_file.interactionModel.start_with?("urn:umich:lib:dor:model:2026:file:")
-      datum["mimeType"] = resource_file.mimeType unless resource_file.mimeType.nil?
-      datum["filename"] = resource_file.filename unless resource_file.filename.nil?
-    end
-    datum["digests"] = ["urn:sha-512:#{calculate_sha512(resource_file.resource_path)}"]
-    datum["updatedAt"] = $updated_at.iso8601
-    datum["updatedBy"] = "dlxsadm"
-    datum["deleted"] = false
-    datum["visibility"] = "visible"
-    datum["contentPath"] = options.rooted ? resource_file.filename : File.basename(resource_file.filename)
-    datum["headersVersion"] = "1.0"
+    # generate a plaintext file for the resource
+    plaintext_asset = {
+      basename: asset[:basename],
+      content: record.plaintext(plaintext_flds),
+      producer: 'zooniverse'
+    }
+    plaintext_path = DLXS::Utils::generate_plaintext(fileset_resource.resource_path, plaintext_asset)
 
-    f.write(JSON.pretty_generate(datum))
+    fileset_resource.add_file(
+      DOR::ResourceFile.new(
+        id: File.join(fileset_resource.id, plaintext_path),
+        parent: fileset_resource.id,
+        content_path: File.basename(plaintext_path),
+        mime_type: "text/plain",
+        interaction_model: DOR::URN("file", "plaintext"),
+        updated_at: $updated_at,
+        filename: File.basename(plaintext_path),
+        function: [DOR::URN("function", "service"), DOR::URN("function", "source")]
+      )
+    )
+
+    plaintext_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, plaintext_path)
+
+    fileset_resource.add_file(
+      DOR::ResourceFile.new(
+        id: File.join(fileset_resource.id, plaintext_md_path),
+        parent: fileset_resource.id,
+        content_path: File.basename(plaintext_md_path),
+        mime_type: "application/xml",
+        interaction_model: DOR::URN("metadata", "textmd"),
+        updated_at: $updated_at,
+        filename: File.basename(plaintext_md_path),
+        function: [DOR::URN("function", "technical")]
+      )
+    )
   end
-end
 
+  DOR::Headers.update_resource_headers(fileset_resource.resource_path)
+end
 
 puts "-30-"
