@@ -26,7 +26,7 @@ module DOR::Headers
     header_data = JSON.parse(File.read(header_file))
     content_path = header_data["contentPath"]
     resource_file = File.join(File.dirname(File.dirname(header_file)), content_path)
-    STDERR.puts "---- #{content_path} -> #{resource_file}"
+    # STDERR.puts "---- #{content_path} -> #{resource_file}"
     header_data["digests"] = ["urn:sha-512:#{calculate_sha512(resource_file)}"]
     header_data["contentSize"] = File.size(resource_file)
     return header_data
@@ -34,7 +34,6 @@ module DOR::Headers
 
   def update_resource_headers(resource_path)
     remove_path = File.dirname(resource_path) + "/"
-    pp Dir.glob(File.join(resource_path, "**", "core.dor.json"))
     package_resources = Dir.glob(File.join(resource_path, "**", "core.dor.json")).select { |f| File.file?(f) }
     package_resources.each do |core_path|
       STDERR.puts "### #{core_path}"
@@ -42,7 +41,7 @@ module DOR::Headers
       resource_id = resource_path.sub(remove_path, "")
       header_files = Dir.glob(File.join(resource_path, ".dor", "*")).select { |f| File.file?(f) }
       header_files.each do |header_file|
-        STDERR.puts header_file
+        ## STDERR.puts header_file
         header_data = update_header(header_file)
         File.open(header_file, "w") do |f|
           f.puts(JSON.pretty_generate(header_data))

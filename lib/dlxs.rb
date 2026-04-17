@@ -178,4 +178,24 @@ module DLXS
 
   end
 
+  class Collection::TextClass
+    attr_accessor :config, :collid
+
+    def initialize(collid)
+      @collid = collid
+      @userid = ENV['DLPS_DEV'] || 'dlxsadm'
+      @config = $db[:Collection]
+        .join(:TextClass, :collid => :collid, :userid => :userid)
+        .where(Sequel.lit('Collection.collid = ? AND Collection.userid = ?', collid, @userid)).first
+    end
+
+    def dd_path()
+      @config[:dd].split('|').map do |dd_path|
+        "/quod/idx/#{@collid[0]}/#{@collid}/#{@collid}.dd"
+      end
+    end
+
+
+  end
+
 end

@@ -86,3 +86,15 @@ class Collection
     end
 
 end
+
+class Collection::TextClass
+  attr_accessor :config
+
+  def initialize(collid)
+    @collid = collid
+    @userid = ENV['DLPS_DEV'] || 'dlxsadm'
+    @config = $db[:Collection]
+      .join(:TextClass, :collid => :collid, :userid => :userid)
+      .where(Sequel.lit('Collection.collid = ? AND Collection.userid = ?', collid, @userid)).first
+  end
+end

@@ -66,6 +66,9 @@ media_table = collection.config[:media_table]
 table_metadata = $db.fetch("SELECT * FROM information_schema.tables WHERE table_schema = ? AND table_name = ?", 'dlxs', data_table).first
 $updated_at = table_metadata[:UPDATE_TIME].to_datetime.to_s
 
+# collect events
+events = []
+
 # fetch the folio and sheet metadata
 records = []
 $db[data_table.to_sym]
@@ -94,8 +97,10 @@ if File.exist?(submission_path)
   FileUtils.rm_rf(submission_path)
 end
 data_path = File.join(submission_path, "data")
+events_path = File.join(submission_path, "events")
 STDERR.puts ":: exporting to #{submission_path}"
 FileUtils.mkdir_p(data_path)
+FileUtils.mkdir_p(events_path)
 File.open(File.join(submission_path, "dor-info.txt"), "w") do |f|
   f.puts "Root-Identifier: #{local_identifier}"
   f.puts "Resource-Type: #{DOR::URN("resource:glam")}"
@@ -113,7 +118,7 @@ resource.add_file(
     parent: nil,
     content_path: "core.dor.json",
     mime_type: "application/json",
-    interaction_model: DOR::URN("resource"),
+    interaction_model: DOR::URN("resource:glam"),
     alternate_id: [
       { type: "urn:umich:lib:dlxs:url", value: "https://quod.lib.umich.edu/#{options.collid[0]}/#{options.collid}/#{options.m_id}/#{options.m_iid}" },
       { type: "urn:umich:lib:dlxs:nameresolver", value: "IC-#{options.collid.upcase}-X-#{records[0].m_id}]1" },
@@ -280,6 +285,7 @@ records.each_with_index do |record, record_index|
 
   STDERR.puts ":: fileset #{fileset_resource.id}"
 
+  pending_id = "info:pending/#{options.collid}/#{record.m_fn}"
   fileset_resource.setup!(data_path)
   fileset_resource.add_file(
     DOR::ResourceFile.new(
@@ -287,9 +293,9 @@ records.each_with_index do |record, record_index|
       parent: resource.id,
       content_path: "core.dor.json",
       mime_type: "application/json",
-      interaction_model: DOR::URN("fileset"),
+      interaction_model: DOR::URN("resource:fileset"),
       alternate_id: [
-        { type: DOR::URN("packaging", "fileset"), value: "info:pending/#{options.collid}/#{record.m_fn}" },
+        { type: DOR::URN("packaging", "fileset"), value: pending_id },
       ],
       partner_id: "info:partner/#{options.partner}",
       content: JSON.pretty_generate({
@@ -302,7 +308,6 @@ records.each_with_index do |record, record_index|
 
   # generate an asset for the resource
   asset = $db[:ImageClassAsset].where(collid: options.collid, basename: record.m_fn, use: "access").first
-
   asset_path = DLXS::Utils::generate_asset(fileset_resource.resource_path, asset)
 
   fileset_resource.add_file(
@@ -321,7 +326,7 @@ records.each_with_index do |record, record_index|
   asset_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, asset_path)
 
   fileset_resource.add_file(
-    DOR::ResourceFile.new(
+    asset_md_file = DOR::ResourceFile.new(
       id: File.join(fileset_resource.id, asset_md_path),
       parent: fileset_resource.id,
       content_path: File.basename(asset_md_path),
@@ -332,6 +337,20 @@ records.each_with_index do |record, record_index|
       function: [DOR::URN("function", "technical")]
     )
   )
+
+  event = DOR::Event.new(
+    # id: DOR::calculate_uuid("#{asset[:basename]}.mee", $default_uuid),
+    event_type: "mee",
+    date_time: asset[:modified],
+    outcome: "success",
+    detail: "Extracted technical metadata for #{asset_file.content_path} using jhove",
+    objects: [ 
+      DOR::Agent.new(identifier: asset_file.id, role: "src"),
+      DOR::Agent.new(identifier: asset_md_file.id, role: "out")
+    ],
+    agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+  )
+  events << event
 
   plaintext_flds = admin_map["iiif_plaintext"]&.keys || []
   if options.collid == 'tinder'
@@ -348,7 +367,7 @@ records.each_with_index do |record, record_index|
     plaintext_path = DLXS::Utils::generate_plaintext(fileset_resource.resource_path, plaintext_asset)
 
     fileset_resource.add_file(
-      DOR::ResourceFile.new(
+      plaintext_file = DOR::ResourceFile.new(
         id: File.join(fileset_resource.id, plaintext_path),
         parent: fileset_resource.id,
         content_path: File.basename(plaintext_path),
@@ -363,7 +382,7 @@ records.each_with_index do |record, record_index|
     plaintext_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, plaintext_path)
 
     fileset_resource.add_file(
-      DOR::ResourceFile.new(
+      plaintext_md_file = DOR::ResourceFile.new(
         id: File.join(fileset_resource.id, plaintext_md_path),
         parent: fileset_resource.id,
         content_path: File.basename(plaintext_md_path),
@@ -374,9 +393,93 @@ records.each_with_index do |record, record_index|
         function: [DOR::URN("function", "technical")]
       )
     )
+
+    event = DOR::Event.new(
+      # id: DOR::calculate_uuid("#{asset[:basename]}.plaintext.mee", $default_uuid),
+      event_type: "mee",
+      date_time: asset[:modified],
+      outcome: "success",
+      detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
+      objects: [ 
+        DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
+        DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
+      ],
+      agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+    )
+    events << event    
   end
 
+  event = DOR::Event.new(
+    # id: DOR::calculate_uuid("#{resource.id}#ingest", $default_uuid),
+    event_type: "ing",
+    date_time: asset[:modified],
+    outcome: "success",
+    detail: "Submitted #{pending_id} for packaging",
+    objects: [ 
+      DOR::Agent.new(identifier: pending_id, role: "src"),
+    ],
+    agents: [ DOR::Agent.new(identifier: "mailto:rjmcinty@umich.edu", role: "imp") ]
+  )
+  events << event
+
+
   DOR::Headers.update_resource_headers(fileset_resource.resource_path)
+end
+
+event = DOR::Event.new(
+  # id: DOR::calculate_uuid("#{resource.id}#ingest", $default_uuid),
+  event_type: "ing",
+  date_time: table_metadata[:UPDATE_TIME].to_datetime,
+  outcome: "success",
+  detail: "Submitted #{resource.id} for ingestion",
+  objects: [ 
+    DOR::Agent.new(identifier: resource.id, role: "src"),
+  ],
+  agents: [ DOR::Agent.new(identifier: "mailto:rjmcinty@umich.edu", role: "imp") ]
+)
+events << event
+
+STDERR.puts "∆ #{events.length} events"
+
+events.each do |event|
+  event_filename = File.join(events_path, "#{event.id}.premis.xml")
+  builder = Builder::XmlMarkup.new(:indent => 2)
+  builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
+  xml = builder.premis :event, "xmlns:premis" => "http://www.loc.gov/premis/v3" do |x|
+    x.premis :eventIdentifier do |x|
+      x.premis :eventIdentifierType, "UUID"
+      x.premis :eventIdentifierValue, event.id
+    end
+    x.premis :eventType,
+      DOR::PREMIS_MAP[event.event_type],
+      authority: "premis_event_type", 
+      authorityURI: "http://id.loc.gov/vocabulary/premis/eventType", 
+      valueURI: "http://id.loc.gov/vocabulary/premis/eventType/#{event.event_type}"
+    x.premis :eventDateTime, event.date_time.to_datetime.to_s
+    x.premis :eventDetailInformation do
+      x.premis :eventDetail, event.detail
+    end
+    x.premis :eventOutcomeInformation do
+      x.premis :eventOutcome, event.outcome
+    end
+    event.agents.each do |agent|
+      x.premis :linkingAgentIdentifier do |x|
+        x.premis :linkingAgentIdentifierType, "local"
+        x.premis :linkingAgentIdentifierValue, agent.identifier
+        x.premis :linkingAgentRole, DOR::PREMIS_MAP[agent.role]
+      end
+    end
+    event.objects.each do |object|
+      x.premis :linkingObjectIdentifier do |x|
+        x.premis :linkingObjectIdentifierType, "local"
+        x.premis :linkingObjectIdentifierValue, object.identifier
+        x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
+      end
+    end
+  end
+  File.open(event_filename, "w") do |f|
+    f.puts(xml)
+  end
 end
 
 puts "-30-"

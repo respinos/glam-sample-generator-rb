@@ -1,4 +1,5 @@
 require 'uuidtools'
+require 'securerandom'
 
 module DOR
   module_function
@@ -6,6 +7,15 @@ module DOR
   $default_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fixtures")
   $fileset_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fileset")
   $submission_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "submission")
+
+  PREMIS_MAP = {
+    "mee" => "metadata extraction",
+    "src" => "source",
+    "out" => "outcome",
+    "exe" => "executing program",
+    "ing" => "ingestation",
+    "imp" => "implementer",
+  }
 
 
   def URN(*leaf)
@@ -15,6 +25,40 @@ module DOR
   def calculate_uuid(resource_path, namespace)
     UUIDTools::UUID.sha1_create(namespace, resource_path).to_s
   end
+
+  def generate_past_uuid7(time, seed: 2026)
+    # Create a seeded pseudo-random number generator
+    STDERR.puts "::: ::: #{time} <- #{seed}"
+    prng = Random.new(seed)
+
+    # 1. Timestamp (48 bits / 12 hex chars)
+    if time.is_a?(String)
+    elsif time.is_a?(DateTime)
+      time = time.to_time
+    end
+    ms = (time.to_f * 1000).to_i
+    hex_ms = ms.to_s(16).rjust(12, '0')
+
+    # 2. Generate 10 random bytes and convert to hex
+    # unpack1('H*') returns a single hex string from the byte array
+    rand_hex = prng.bytes(10).unpack1('H*')
+
+    # 3. Construct the UUID components
+    part1 = hex_ms[0..7]
+    part2 = hex_ms[8..11]
+    
+    # Version 7 + next 3 hex chars from our random pool
+    part3 = "7#{rand_hex[0..2]}"
+    
+    # Variant 2 (8, 9, a, or b) + next 3 hex chars
+    # We'll stick to '8' for total predictability in tests
+    part4 = "8#{rand_hex[3..5]}"
+    
+    # The remaining 12 hex chars
+    part5 = rand_hex[6..17]
+
+  "#{part1}-#{part2}-#{part3}-#{part4}-#{part5}"
+  end  
 
   class Resource
     attr_accessor :id, :resource_path, :header_path, :interaction_model, :mime_type, :digests, :content_size
@@ -43,8 +87,8 @@ module DOR
         datum[:id] = "info:root/#{resource_file.id}"
         datum[:parent] = resource_file.parent.nil? ? "info:root" : File.join("info:root", resource_file.parent.to_s)
         datum[:systemIdentifier] = DOR::calculate_uuid(datum[:id], $default_uuid) if $include_system_identifiers
-        unless resource_file.stakeholder_id.nil?
-          datum[:stakeholderId] = resource_file.stakeholder_id
+        unless resource_file.partner_id.nil?
+          datum[:partnerId] = resource_file.partner_id
         end
         unless resource_file.alternate_id.empty?
           datum[:alternateId] = resource_file.alternate_id
@@ -76,9 +120,9 @@ module DOR
 
   class ResourceFile
 
-    attr_accessor :id, :parent, :content_path, :mime_type, :interaction_model, :alternate_id, :content, :updated_at, :stakeholder_id, :filename, :function
+    attr_accessor :id, :parent, :content_path, :mime_type, :interaction_model, :alternate_id, :content, :updated_at, :partner_id, :filename, :function
 
-    def initialize(id:, parent:, content_path:, mime_type:, interaction_model:, alternate_id: [], content: nil, updated_at:, stakeholder_id: nil, filename: nil, function: nil)
+    def initialize(id:, parent:, content_path:, mime_type:, interaction_model:, alternate_id: [], content: nil, updated_at:, partner_id: nil, filename: nil, function: nil)
       @id = id
       @parent = parent
       @content_path = content_path
@@ -88,8 +132,33 @@ module DOR
       @content = content
       @filename = filename
       @updated_at = updated_at
-      @stakeholder_id = stakeholder_id
+      @partner_id = partner_id
       @function = function
+    end
+  end
+
+  class Agent
+    attr_accessor :identifier, :role
+    def initialize(identifier:, role:)
+      @identifier = identifier
+      @role = role
+    end
+  end
+
+  class Event
+    @@seed = 2026
+
+    attr_accessor :id, :date_time, :event_type, :outcome, :detail, :objects, :agents
+
+    def initialize(date_time:, event_type:, outcome:, detail:, objects: [], agents: [])
+      @@seed += 1
+      @id = DOR::generate_past_uuid7(date_time, seed: @@seed)
+      @date_time = date_time
+      @event_type = event_type
+      @detail = detail
+      @outcome = outcome
+      @objects = objects
+      @agents = agents
     end
   end
 
