@@ -273,123 +273,140 @@ XML
   ## alternatively you can get the PB and then query for the sequence
   ## pr.region."page" ((region page incl (region "PB-T" incl (region "A-SEQ" incl "00000001"))) within (region main incl (region id incl ("851644.0008.047 " + "851644.0008.047<"))));
 
-  div_el = doc.xpath("//BODY/DIV1").first
-  div_el.xpath(".//P").each_with_index do |p_el, index|
-    pb_els = p_el.xpath(".//PB")
-    puts "#{index} :: #{pb_els.length}"
-    content = p_el.inner_text.strip
-    pb_el = pb_els.first
+  pb_els = doc.xpath('//BODY//PB[@REF]')
+  tei_filename = "#{idno}~md.tei.xml"
+  tei_fn = []
+  if pb_els.empty? and collection.config[:pageimages] == '0'
+    # we are working without page scans
+    STDERR.puts "no images, no OCR"
+    tei_filename = "#{idno}~src.tei.xml"
+    tei_fn << DOR::URN("function", "source")
+  else
 
-    m_fn = pb_el["SEQ"]
-    fileset_resource = DOR::Resource.new("#{resource.id}/#{m_fn}")
+    pb_els.each_with_index do |pb_el, index|
+      puts "% #{index+1}/#{pb_els.length} - #{pb_el['SEQ']}"
 
-    STDERR.puts ":: fileset #{fileset_resource.id}"
+      page_query = %(pr.region."page" ((region page incl (region "PB-T" incl (region "A-SEQ" incl "#{pb_el['SEQ']}"))) within (region main incl (region id incl ("#{idno} " + "#{idno}<"))));)
+      error, page_result = xpat.get_simple_results_from_query(page_query)
+      page_result = DlpsUtils::twigify(page_result)
+      page_doc = Nokogiri::XML(page_result) { |config| config.default_xml.noblanks }
+      content = page_doc.xpath("//P").map(&:inner_text).join("\n\n").strip
 
-    # generate an asset for the resource
-    page = $db[:Pageview].where(idno: idno, seq: pb_el["SEQ"]).order(Sequel.desc(:bpp)).first
+      m_fn = pb_el["SEQ"]
+      fileset_resource = DOR::Resource.new("#{resource.id}/#{m_fn}")
 
-    pending_id = "info:pending/#{idno}/#{m_fn}"
-    fileset_resource.setup!(data_path)
-    fileset_resource.add_file(
-      DOR::ResourceFile.new(
-        id: fileset_resource.id,
-        parent: resource.id,
-        content_path: "core.dor.json",
-        mime_type: "application/json",
-        interaction_model: DOR::URN("resource:fileset"),
-        alternate_id: [
-          { type: DOR::URN("packaging", "fileset"), value: pending_id },
-        ],
-        partner_id: "info:partner/#{options.partner}",
-        content: JSON.pretty_generate({
-          "dc.identifier" => [ "#{idno}/#{m_fn}" ],
-          "dc.title" => [ "#{pb_el['REF']} - #{pb_el['SEQ']}" ]
-        }),
-        updated_at: page[:loaded].to_datetime.to_s
-      )
-    )
+      STDERR.puts ":: fileset #{fileset_resource.id}"
 
-    asset = $db[:TextClassAsset].where(idno: idno, basename: File.basename(page[:image], '.*'), use: "access", access: 1).first
-    asset_path = DLXS::Utils::generate_obj(fileset_resource.resource_path, asset)
+      # generate an asset for the resource
+      page = $db[:Pageview].where(idno: idno, seq: pb_el["SEQ"]).order(Sequel.desc(:bpp)).first
 
-    fileset_resource.add_file(
-      asset_file = DOR::ResourceFile.new(
-        id: File.join(fileset_resource.id, asset_path),
-        parent: fileset_resource.id,
-        content_path: File.basename(asset_path),
-        mime_type: asset[:mimetype],
-        interaction_model: DOR::URN("file", "image"),
-        updated_at: asset[:loaded].to_datetime.to_s,
-        filename: File.basename(asset_path),
-        function: [DOR::URN("function", "source")]
-      )
-    )
-
-    asset_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, asset_path)
-
-    fileset_resource.add_file(
-      asset_md_file = DOR::ResourceFile.new(
-        id: File.join(fileset_resource.id, asset_md_path),
-        parent: fileset_resource.id,
-        content_path: File.basename(asset_md_path),
-        mime_type: "application/xml",
-        interaction_model: DOR::URN("metadata", "mix"),
-        updated_at: asset[:loaded].to_datetime.to_s,
-        filename: File.basename(asset_md_path),
-        function: [DOR::URN("function", "technical")]
-      )
-    )
-
-    unless content && content.empty?
-      plaintext_asset = {
-        basename: page[:seq],
-        content: content,
-        producer: 'primeocr'
-      }
-
-      plaintext_path = DLXS::Utils::generate_plaintext(fileset_resource.resource_path, plaintext_asset)
-
+      pending_id = "info:pending/#{idno}/#{m_fn}"
+      fileset_resource.setup!(data_path)
       fileset_resource.add_file(
-        text_file = DOR::ResourceFile.new(
-          id: File.join(fileset_resource.id, plaintext_path),
-          parent: fileset_resource.id,
-          content_path: File.basename(plaintext_path),
-          mime_type: "text/plain",
-          interaction_model: DOR::URN("file", "text"),
-          updated_at: asset[:loaded].to_datetime.to_s,
-          filename: File.basename(plaintext_path),
-          function: [DOR::URN("function", "derived")]
+        DOR::ResourceFile.new(
+          id: fileset_resource.id,
+          parent: resource.id,
+          content_path: "core.dor.json",
+          mime_type: "application/json",
+          interaction_model: DOR::URN("resource:fileset"),
+          alternate_id: [
+            { type: DOR::URN("packaging", "fileset"), value: pending_id },
+          ],
+          partner_id: "info:partner/#{options.partner}",
+          content: JSON.pretty_generate({
+            "dc.identifier" => [ "#{idno}/#{m_fn}" ],
+            "dc.title" => [ "#{pb_el['REF']} - #{pb_el['SEQ']}" ]
+          }),
+          updated_at: page[:loaded].to_datetime.to_s
         )
       )
 
-      plaintext_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, plaintext_path)
+      asset = $db[:TextClassAsset].where(idno: idno, basename: File.basename(page[:image], '.*'), use: "access", access: 1).first
+      asset_path = DLXS::Utils::generate_obj(fileset_resource.resource_path, asset)
 
       fileset_resource.add_file(
-        plaintext_md_file = DOR::ResourceFile.new(
-          id: File.join(fileset_resource.id, plaintext_md_path),
+        asset_file = DOR::ResourceFile.new(
+          id: File.join(fileset_resource.id, asset_path),
           parent: fileset_resource.id,
-          content_path: File.basename(plaintext_md_path),
+          content_path: File.basename(asset_path),
+          mime_type: asset[:mimetype],
+          interaction_model: DOR::URN("file", "image"),
+          updated_at: asset[:loaded].to_datetime.to_s,
+          filename: File.basename(asset_path),
+          function: [DOR::URN("function", "source")]
+        )
+      )
+
+      asset_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, asset_path)
+
+      fileset_resource.add_file(
+        asset_md_file = DOR::ResourceFile.new(
+          id: File.join(fileset_resource.id, asset_md_path),
+          parent: fileset_resource.id,
+          content_path: File.basename(asset_md_path),
           mime_type: "application/xml",
-          interaction_model: DOR::URN("metadata", "textmd"),
-          updated_at: $updated_at,
-          filename: File.basename(plaintext_md_path),
+          interaction_model: DOR::URN("metadata", "mix"),
+          updated_at: asset[:loaded].to_datetime.to_s,
+          filename: File.basename(asset_md_path),
           function: [DOR::URN("function", "technical")]
         )
-      )      
+      )
+
+      unless content && content.empty?
+        plaintext_asset = {
+          basename: page[:seq],
+          content: content,
+          producer: 'primeocr'
+        }
+
+        plaintext_path = DLXS::Utils::generate_plaintext(fileset_resource.resource_path, plaintext_asset)
+
+        fileset_resource.add_file(
+          text_file = DOR::ResourceFile.new(
+            id: File.join(fileset_resource.id, plaintext_path),
+            parent: fileset_resource.id,
+            content_path: File.basename(plaintext_path),
+            mime_type: "text/plain",
+            interaction_model: DOR::URN("file", "text"),
+            updated_at: asset[:loaded].to_datetime.to_s,
+            filename: File.basename(plaintext_path),
+            function: [DOR::URN("function", "derived")]
+          )
+        )
+
+        plaintext_md_path = DLXS::Utils::generate_techmd(fileset_resource.resource_path, plaintext_path)
+
+        fileset_resource.add_file(
+          plaintext_md_file = DOR::ResourceFile.new(
+            id: File.join(fileset_resource.id, plaintext_md_path),
+            parent: fileset_resource.id,
+            content_path: File.basename(plaintext_md_path),
+            mime_type: "application/xml",
+            interaction_model: DOR::URN("metadata", "textmd"),
+            updated_at: $updated_at,
+            filename: File.basename(plaintext_md_path),
+            function: [DOR::URN("function", "technical")]
+          )
+        )      
+      end
     end
   end
 
   # transform doc to TEIP5
   # Nokogiri::XSLT.quote_params({ "title" => "Aaron's List" })).to_xml
   File.open("/tmp/doc.xml" , "w") { |f| f.write(doc.to_xml) }
-  result = tei_stylesheet.transform(doc, Nokogiri::XSLT.quote_params({ "idno" => idno }))
+  result = tei_stylesheet.transform(doc, Nokogiri::XSLT.quote_params({
+    "idno" => idno,
+    "encoding_level" => encoding_level
+  }))
   resource.add_file(
     DOR::ResourceFile.new(
-      id: File.join(resource.id, "#{idno}~md.tei.xml"),
+      id: File.join(resource.id, tei_filename),
       parent: resource.id,
-      content_path: "#{idno}~md.tei.xml",
+      content_path: tei_filename,
       mime_type: "application/xml",
       interaction_model: DOR::URN("metadata", "tei"),
+      function: tei_fn,
       updated_at: $updated_at,
       content: result.to_xml
     )

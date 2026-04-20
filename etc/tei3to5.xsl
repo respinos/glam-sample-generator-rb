@@ -9,6 +9,7 @@
     <xsl:output method="xml" version="1.0" encoding="utf-8" indent="yes"/>
 
     <xsl:param name="idno" />
+    <xsl:param name="encoding_level" />
 
     <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -27,6 +28,7 @@
             <li p3="PROJECTDESC" p5="projectDesc" />
             <li p3="LANGUSAGE" p5="langUsage" />
             <li p3="TEXTCLASS" p5="textClass" />
+            <li p3="HI1" p5="hi" />
         </ol>
     </xsl:variable>
     <xsl:variable name="mapping" select="exsl:node-set($mapping-tmp)" />
@@ -43,16 +45,20 @@
         <xsl:element name="tei:{$tag-name}">test</xsl:element>
     </xsl:template>
 
-    <xsl:template match="P[PB]" mode="copy" priority="101">
+    <xsl:template match="P[PB[@REF]]" mode="copy" priority="101">
         <xsl:apply-templates select="PB" mode="copy" />
     </xsl:template>
 
-    <xsl:template match="PB" mode="copy" priority="101">
+    <xsl:template match="PB[@REF]" mode="copy" priority="101">
         <tei:pb facs="{@SEQ}" glam:seq="{@SEQ}" type="{@FTR}">
             <xsl:apply-templates select="@N" mode="copy" />
             <!-- <xsl:apply-templates select="@SEQ" mode="copy" />
             <xsl:apply-templates select="@FTR" mode="copy" /> -->
         </tei:pb> 
+    </xsl:template>
+
+    <xsl:template match="PB" mode="copy" priority="99">
+        <tei:pb n="{@N}"></tei:pb>
     </xsl:template>
 
     <xsl:template match="node()[name()]" mode="copy">
@@ -77,6 +83,18 @@
     <xsl:template match="@NODE" mode="copy" priority="101">
         <xsl:attribute name="glam:node">
             <xsl:value-of select="." />
+        </xsl:attribute>
+    </xsl:template>
+
+    <xsl:template match="@ID" mode="copy" priority="101">
+        <xsl:attribute name="xml:id">
+            <xsl:value-of select="concat('_', .)" />
+        </xsl:attribute>
+    </xsl:template>
+
+    <xsl:template match="@TARGET" mode="copy" priority="101">
+        <xsl:attribute name="target">
+            <xsl:value-of select="concat('_', .)" />
         </xsl:attribute>
     </xsl:template>
 
