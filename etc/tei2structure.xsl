@@ -12,13 +12,20 @@
   <xsl:param name="idno" />
   <xsl:param name="encodingtype" />
 
+  <xsl:variable name="badchars" select="':'"/>
+  <xsl:variable name="goodchars" select="'-'"/>
+
+
   <xsl:template match="/">
     <xsl:variable name="n" select="//tei:editorialdecl/@n" />
     <mets:structMap>
       <mets:div TYPE="{$encodingtype}">
         <xsl:choose>
           <xsl:when test="$n = '1'">
-            <xsl:apply-templates select="//tei:pb" mode="level1" />
+            <xsl:apply-templates select="//tei:pb" />
+          </xsl:when>
+          <xsl:when test="$n = '2'">
+            <xsl:apply-templates select="//tei:div1[@glam:node]" />
           </xsl:when>
           <xsl:otherwise />
         </xsl:choose>
@@ -26,7 +33,13 @@
     </mets:structMap>
   </xsl:template>
 
-  <xsl:template match="tei:pb" mode="level1">
+  <xsl:template match="tei:div1[@glam:node]">
+    <mets:div TYPE="section" ORDER="{position()}" MDID="{@glam:node}~md.service.json">
+      <xsl:apply-templates select="tei:pb" />
+    </mets:div>
+  </xsl:template>
+
+  <xsl:template match="tei:pb">
     <mets:div TYPE="page" ORDER="{@glam:seq}">
       <xsl:if test="@n">
         <xsl:attribute name="ORDERLABEL"><xsl:value-of select="@n" /></xsl:attribute>

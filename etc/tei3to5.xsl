@@ -9,7 +9,7 @@
     <xsl:output method="xml" version="1.0" encoding="utf-8" indent="yes"/>
 
     <xsl:param name="idno" />
-    <xsl:param name="encoding_level" />
+    <xsl:param name="encoding_level" select="//EDITORIALDECL/@N" />
 
     <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -35,8 +35,8 @@
 
     <xsl:template match="/">
         <tei:TEI xml:id="_{$idno}">
-            <xsl:apply-templates select="//DLPSTEXTCLASS/HEADER" mode="copy" />
-            <xsl:apply-templates select="//DLPSTEXTCLASS/TEXT" mode="copy" />
+            <xsl:apply-templates select="//FullTextResults/ItemHeader/HEADER" mode="copy" />
+            <xsl:apply-templates select="//FullTextResults/DocContent/DLPSTEXTCLASS/TEXT" mode="copy" />
         </tei:TEI>
     </xsl:template>
 
@@ -82,7 +82,7 @@
 
     <xsl:template match="@NODE" mode="copy" priority="101">
         <xsl:attribute name="glam:node">
-            <xsl:value-of select="." />
+            <xsl:value-of select="translate(., $uppercase, $lowercase)" />
         </xsl:attribute>
     </xsl:template>
 
@@ -101,9 +101,11 @@
     <xsl:template match="@*" mode="copy">
         <xsl:variable name="p3" select="name()" />
         <xsl:variable name="p5" select="translate($p3, $uppercase, $lowercase)"/>
-        <xsl:attribute name="{$p5}">
-            <xsl:value-of select="." />
-        </xsl:attribute>
+        <xsl:if test="normalize-space(.)">
+            <xsl:attribute name="{$p5}">
+                <xsl:value-of select="." />
+            </xsl:attribute>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="text()" mode="copy">
