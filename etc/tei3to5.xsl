@@ -4,6 +4,7 @@
                 xmlns:tei="http://www.tei-c.org/ns/1.0"
                 xmlns:exsl="http://exslt.org/common"
                 xmlns:glam="urn:umich:lib:dor:model:2026:resource:glam"
+                extension-element-prefixes="glam"
                 exclude-result-prefixes="xs exsl"
                 version="1.0">
     <xsl:output method="xml" version="1.0" encoding="utf-8" indent="yes"/>
@@ -34,7 +35,9 @@
     <xsl:variable name="mapping" select="exsl:node-set($mapping-tmp)" />
 
     <xsl:template match="/">
-        <tei:TEI xml:id="_{$idno}">
+        <xsl:variable name="xmlid" select="$idno" />
+        <tei:TEI xml:id="{$xmlid}"
+            xmlns:glam="urn:umich:lib:dor:model:2026:resource:glam">
             <xsl:apply-templates select="//FullTextResults/ItemHeader/HEADER" mode="copy" />
             <xsl:apply-templates select="//FullTextResults/DocContent/DLPSTEXTCLASS/TEXT" mode="copy" />
         </tei:TEI>
@@ -96,6 +99,13 @@
         <xsl:attribute name="target">
             <xsl:value-of select="concat('_', .)" />
         </xsl:attribute>
+    </xsl:template>
+
+    <xsl:template match="TEXT" mode="structure">
+        <xsl:element name="tei:text">
+            <xsl:apply-templates select="@*" mode="copy" />
+            <xsl:apply-templates select="*|text()" mode="structure" />
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="@*" mode="copy">

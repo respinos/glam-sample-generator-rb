@@ -15,6 +15,25 @@ require_relative "../lib/dlxs/utils"
 require_relative "../lib/dlps_utils"
 require 'pp'
 
+require 'zlib'
+
+def to_xml_id_crc(input_string)
+  # Zlib.crc32 returns an unsigned 32-bit integer
+  "_#{Zlib.crc32(input_string).to_s(16)}"
+end
+
+# Register a custom function under a specific namespace URI
+Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new do
+  def hash_id(input)
+    # The input from XSLT is often a NodeSet or an Array; 
+    # we convert to string to hash it.
+    str = input.is_a?(Enumerable) ? input.first.to_s : input.to_s
+    STDERR.puts "== hashing #{str}"
+    to_xml_id_crc(str.downcase)
+    # "_" + Zlib.adler32(str).to_s(16)
+  end
+end)
+
 DLXS_HOST = "quod.lib.umich.edu"
 XPATH_FN_NS = "http://www.w3.org/2005/xpath-functions"
 QUI_NS = "http://dlxs.org/quombat/ui"
@@ -22,7 +41,8 @@ TEI_NS = "http://www.tei-c.org/ns/1.0"
 NSMAP = {
   'fn' => XPATH_FN_NS,
   'qui' => QUI_NS,
-  'tei' => TEI_NS
+  'tei' => TEI_NS,
+  'glam' => "urn:umich:lib:dor:model:2026:resource:glam"
 }
 
 config = IniFile.load("#{ENV['DLXSROOT']}/bin/i/image/etc/package.conf")
@@ -122,14 +142,23 @@ Cache.new options.collid do |cache|
     key = "dc.#{field_el['key']}"
     core_md[key] = []
     field_el.xpath('.//qui:value').each do |value_el|
-      core_md[key] << value_el.text
+      if key == 'dc.useguidelines'
+        p_els = value_el.xpath(".//xhtml:p")
+        core_md[key] << p_els.first.inner_text
+        link_el = value_el.at_xpath(".//xhtml:a")
+        unless link_el.nil?
+          core_md[key] << { type: "uri", value: link_el['href'] }
+        end
+      else
+        core_md[key] << value_el.text
+      end
     end
   end
 
   encodingtype = toc_doc.xpath("//qui:metadata[@slot='root']/@encoding-type")
 
   bookmarkable_url = core_md.delete('dc.bookmark')&.first
-  rights_statement = core_md.delete("dc.useguidelines")&.first
+  rights_statement = core_md.delete("dc.useguidelines")
   core_md.delete("dc.citation")
 
   alternate_id = []
@@ -140,7 +169,7 @@ Cache.new options.collid do |cache|
     alternate_id << { type: "urn:umich:lib:dlxs:url", value: dlxs_url }
   end
 
-  submission_path = File.join(options.output_path, DOR::calculate_uuid(local_identifier, $submission_uuid))
+  submission_path = File.join(options.output_path, DOR::calculate_uuid(local_identifier, $proposed_uuid))
   if File.exist?(submission_path)
     FileUtils.rm_rf(submission_path)
   end
@@ -176,34 +205,16 @@ Cache.new options.collid do |cache|
     )
   )
 
+  metadata_sec = []
+  metadata_sec << {
+    "$id": to_xml_id_crc("#{idno}#source"),
+    "$node": idno,
+    "$function": [DOR::URN("function", "service")],
+  }
+  metadata_sec[0].merge!(core_md)
+
   has_images = toc_doc.xpath("//qui:block[@slot='contents']//qui:link[contains(@href, 'pageviewer-idx')]").any?
   if has_images
-    # manifest_json = cache.get("api/manifest/#{collid}:#{idno}").to_s
-    # manifest = JSON.parse(manifest_json)
-
-    # manifest['sequences'].each do |sequence|
-    #   sequence['canvases'].each do |canvas|
-    #     image_resource = canvas['images'].first['resource']
-    #     image_id = image_resource['service']['@id']
-
-    #     m_fn = image_id.split(":").last
-    #     fileset_resource = DOR::Resource.new("#{resource.id}/#{m_fn}")
-        
-    #     image_data = cache.get("#{image_id}/full/250,/0/native.tif")
-    #     resource.add_file(
-    #       DOR::ResourceFile.new(
-    #         id: File.join(resource.id, m_fn),
-    #         parent: resource.id,
-    #         content_path: "#{m_fn}.tif",
-    #         mime_type: "image/tiff",
-    #         interaction_model: DOR::URN("file:image"),
-    #         content: image_data,
-    #         updated_at: $updated_at
-    #       )
-    #     )
-    #   end
-    # end
-
     pageviewer_link = toc_doc.xpath("//qui:block[@slot='contents']//qui:link[contains(@href, 'pageviewer-idx')]").first
     pageviewer_href = CGI.unescape(pageviewer_link['href'].split('/cgi/t/text/').last)
     pageviewer_xml = cache.get(pageviewer_href).to_s
@@ -318,7 +329,6 @@ Cache.new options.collid do |cache|
     STDERR.puts "- #{idno}"
   end
 
-
   # transform DLXS TEI to TEIP5
   text_xml = cache.get("text-idx?cc=#{collid}&idno=#{idno}&debug=xml&view=text&_=xyzzy&rgn=main&rewrap=no").to_s
   text_doc = Nokogiri::XML(text_xml)  { |config| config.default_xml.noblanks }
@@ -329,44 +339,69 @@ Cache.new options.collid do |cache|
       parent: resource.id,
       content_path: tei_filename,
       mime_type: "application/xml",
-      interaction_model: DOR::URN("metadata", "tei"),
-      function: tei_fn,
+      interaction_model: DOR::URN("file", "tei"),
+      function: DOR::URN("function", "source"),
       updated_at: $updated_at,
       content: teip5_doc.to_xml
     )
   )
 
-  teip5_doc.xpath("//tei:div1[tei:bibl]", **NSMAP).each do |div1_el|
-    # extract the service metadata for each div1
-    node_md = {}
-    node_md["dc.identifier.section"] = [div1_el['glam:node']]
-    node_md["dc.title.section"] = [div1_el.at_xpath("tei:bibl/tei:title", **NSMAP)&.text]
-    citation = []
-    [['vol', 'Volume'], ['iss', 'Issue']].each do |attr, label|
-      bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
-      citation << "#{label} #{bibl_el.text}" if bibl_el
+  if teip5_doc.at_xpath("//tei:editorialdecl/@n", **NSMAP)&.value != "1"
+    teip5_doc.xpath("//tei:div1[tei:bibl]", **NSMAP).each do |div1_el|
+      # extract the service metadata for each div1
+      node_md = {}
+      node_md["dc.identifier.section"] = [div1_el['glam:node']]
+      node_md["dc.title.section"] = [div1_el.at_xpath("tei:bibl/tei:title", **NSMAP)&.text]
+      citation = []
+      [['vol', 'Volume'], ['iss', 'Issue']].each do |attr, label|
+        bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
+        citation << "#{label} #{bibl_el.text}" if bibl_el
+      end
+      date = []
+      [ 'mo', 'year' ].each do |attr|
+        bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
+        date << bibl_el.text if bibl_el
+      end
+      citation << date.join(" ") unless date.empty?
+      node_md["dcterms.bibliographicCitation"] = [citation.join(", ")]
+
+      other_md = {}
+      other_md["$id"] = to_xml_id_crc("#{div1_el['glam:node']}#service")
+      other_md["$node"] = div1_el['glam:node']
+      other_md["$function"] = [DOR::URN("function", "service")]
+      other_md["dc.title.section"] = node_md["dc.title.section"]
+      other_md["dcterms.bibliographicCitation"] = node_md["dcterms.bibliographicCitation"]
+      metadata_sec << other_md
     end
-    date = []
-    [ 'mo', 'year' ].each do |attr|
-      bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
-      date << bibl_el.text if bibl_el
+
+    if metadata_sec.length == 1
+      teip5_doc.xpath("//tei:div1[@glam:node][tei:head]", **NSMAP).each do |div_el|
+        node_md = {}
+        node_md["dc.identifier.section"] = [div_el['glam:node']]
+        node_type = div_el['type'].downcase
+        node_md["dc.title.#{node_type}"] = [div_el.at_xpath("tei:head", **NSMAP)&.text]
+        other_md = {}
+        other_md["$id"] = to_xml_id_crc("#{div_el['glam:node']}#service")
+        other_md["$node"] = div_el['glam:node']
+        other_md["$function"] = [DOR::URN("function", "service")]
+        other_md["dc.title.#{node_type}"] = node_md["dc.title.#{node_type}"]
+        metadata_sec << other_md
+      end
     end
-    citation << date.join(" ") unless date.empty?
-    node_md["dcterms.bibliographicCitation"] = [citation.join(", ")]
-    file_id = "#{File.join(resource.id, div1_el['glam:node'])}~md.service.json"
-    service_filename = "#{div1_el['glam:node'].gsub(':', '-')}~md.service.json"
-    resource.add_file(
-      DOR::ResourceFile.new(
-        id: file_id,
-        parent: resource.id,
-        content_path: service_filename,
-        mime_type: "application/json",
-        interaction_model: DOR::URN("metadata"),
-        content: JSON.pretty_generate(node_md),
-        updated_at: $updated_at
-      )
-    )
   end
+  
+  resource.add_file(
+    DOR::ResourceFile.new(
+      id: File.join(resource.id, "#{idno}~md.service.json"),
+      parent: resource.id,
+      content_path: "#{idno}~md.service.json",
+      mime_type: "application/json",
+      interaction_model: DOR::URN("metadata"),
+      function: [DOR::URN("function", "service")],
+      updated_at: $updated_at,
+      content: JSON.pretty_generate(metadata_sec)
+    )
+  )
 
   # transform TEIP5 to structure.dor.xml
   structmap = structmap_stylesheet.transform(
@@ -386,9 +421,9 @@ Cache.new options.collid do |cache|
   )
 
   # generate rights.dor.json
-  unless rights_statement.nil?
+  unless rights_statement.nil? or rights_statement.empty?
     rights_md = {}
-    rights_md["dc.rights"] = [rights_statement]
+    rights_md["dc.rights"] = rights_statement
     resource.add_file(
       DOR::ResourceFile.new(
         id: File.join(resource.id, "rights.dor.json"),
