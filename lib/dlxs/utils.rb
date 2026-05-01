@@ -13,7 +13,7 @@ module DLXS
     end
 
     def generate_asset(resource_path, asset)
-      cmd = TTY::Command.new(printer: :null)
+      cmd = TTY::Command.new(printer: :null)      
       jp2_path = File.join("/quod/asset", asset[:filename])
       actual_jp2_path = File.join(
         "/quod/asset",
@@ -86,8 +86,23 @@ module DLXS
       elsif asset_filename.end_with?(".jp2")
         then "~md.mix.xml"
         elsif asset_filename.end_with?(".txt") then "~md.textmd.xml"
+        elsif asset_filename.end_with?(".html") then "~md.textmd.xml"
         else "~md.unknown.xml"
         end
+
+      is_jhove_installed = cmd.run!("bash -c 'command -v exiftool'").success?
+      unless is_jhove_installed
+        if asset_filename.end_with?(".tif")
+          return generate_techmd_image(resource_path, asset_path, asset_filename, md_filename)
+        elsif asset_filename.end_with?(".txt")
+          return generate_techmd_text(resource_path, asset_path, asset_filename, md_filename)
+        elsif asset_filename.end_with?(".html")
+          return generate_techmd_text(resource_path, asset_path, asset_filename, md_filename)
+        else
+          raise "Jhove is not installed and the file type is not supported for techMD generation without Jhove."
+        end
+      end
+      
       argv = [ "jhove",
         "-c", "etc/jhove.conf",
         "-h", "xml" ]
@@ -121,79 +136,109 @@ module DLXS
       md_filename
     end
 
-    # def generate_techmd_image(file)
-    #   # Initialize Exiftool and fetch metadata
-    #   # file[:pathandfilename] assumes 'file' is a Hash
-    #   metadata = Exiftool.new(file[:pathandfilename]).to_hash
+    def generate_techmd_image(resource_path, asset_path, asset_filename, md_filename)
+      # Initialize Exiftool and fetch metadata
+      # file[:pathandfilename] assumes 'file' is a Hash
+
+      require 'exifr/tiff'
+
+      metadata = EXIFR::TIFF.new(asset_filename)
       
-    #   # Determine Resolution Unit
-    #   unit = case metadata[:resolution_unit]&.downcase
-    #         when /inch|in/ then 'in.'
-    #         when /cm|centimeter/ then 'cm'
-    #         else 'no absolute unit'
-    #         end
+      # Determine Resolution Unit
+      unit = case metadata.resolution_unit
+            when 2 then 'in.'
+            when 3 then 'cm'
+            else 'no absolute unit'
+            end
 
-    #   # Determine Byte Order
-    #   byte_order = metadata[:exif_byte_order]&.downcase =~ /little/ ? 'little endian' : 'big endian'
+      # Determine Byte Order
+      byte_order = 'little endian'
 
-    #   # Initialize Builder
-    #   xml = Builder::XmlMarkup.new(indent: 2)
+      # Initialize Builder
+      xml = Builder::XmlMarkup.new(indent: 2)
 
-    #   xml.mix :mix do
-    #     xml.mix :BasicDigitalObjectInformation do
-    #       xml.mix :FormatDesignation do
-    #         xml.mix :formatName, metadata[:mime_type]
-    #       end
+      xml.mix :mix, "xmlns:mix" => "http://www.loc.gov/mix/v20" do
+        xml.mix :BasicDigitalObjectInformation do
+          xml.mix :FormatDesignation do
+            xml.mix :formatName, "image/tiff"
+          end
           
-    #       xml.mix :ObjectIdentifier do
-    #         xml.mix :objectIdentiferType, "Exiftool (Ruby)"
-    #         xml.mix :objectIdentifierValue, "#{file[:basename]}#{file[:suffix]}"
-    #       end
+          xml.mix :ObjectIdentifier do
+            xml.mix :objectIdentiferType, "EXIFR (Ruby)"
+            xml.mix :objectIdentifierValue, "#{File.basename(asset_filename)}"
+          end
           
-    #       xml.mix :byteOrder, byte_order
+          xml.mix :byteOrder, byte_order
           
-    #       xml.mix :Compression do
-    #         xml.mix :compressionScheme, metadata[:compression]
-    #       end
-    #     end
+          xml.mix :Compression do
+            xml.mix :compressionScheme, metadata.compression
+          end
+        end
 
-    #     xml.mix :BasicImageInformation do
-    #       xml.mix :BasicImageCharacteristics do
-    #         xml.mix :imageWidth, metadata[:image_width]
-    #         xml.mix :imageHeight, metadata[:image_height]
-    #         xml.mix :PhotometricInterpretation do
-    #           xml.mix :colorSpace, metadata[:color_space]
-    #         end
-    #       end
+        xml.mix :BasicImageInformation do
+          xml.mix :BasicImageCharacteristics do
+            xml.mix :imageWidth, metadata.image_width
+            xml.mix :imageHeight, metadata.image_length
+            xml.mix :PhotometricInterpretation do
+              xml.mix :colorSpace, metadata.color_space
+            end
+          end
 
-    #       xml.mix :ImageAssessmentMetadata do
-    #         xml.mix :SpacialMetrics do
-    #           xml.mix :samplingFrequencyUnit, unit
-    #           xml.mix :xSamplingFrequency do
-    #             xml.mix :numerator, metadata[:x_resolution]
-    #             xml.mix :denominator, 1
-    #           end
-    #           xml.mix :ySamplingFrequency do
-    #             xml.mix :numerator, metadata[:y_resolution]
-    #             xml.mix :denominator, 1
-    #           end
-    #         end
+          xml.mix :ImageAssessmentMetadata do
+            xml.mix :SpacialMetrics do
+              xml.mix :samplingFrequencyUnit, unit
+              xml.mix :xSamplingFrequency do
+                xml.mix :numerator, metadata.x_resolution
+                xml.mix :denominator, 1
+              end
+              xml.mix :ySamplingFrequency do
+                xml.mix :numerator, metadata.y_resolution
+                xml.mix :denominator, 1
+              end
+            end
 
-    #         xml.mix :ImageColorEncoding do
-    #           xml.mix :BitsPerSample do
-    #             # Handle space-separated bits per sample (e.g., "8 8 8")
-    #             bits = metadata[:bits_per_sample].to_s.split(' ')
-    #             samples_per_pixel = metadata[:samples_per_pixel].to_i
+            xml.mix :ImageColorEncoding do
+              xml.mix :BitsPerSample do
+                # Handle space-separated bits per sample (e.g., "8 8 8")
+                bits = metadata.bits_per_sample.to_s.split(' ')
+                samples_per_pixel = metadata.samples_per_pixel.to_i
                 
-    #             samples_per_pixel.times do |i|
-    #               xml.mix :bitsPerSampleValue, bits[i]
-    #             end
-    #             xml.mix :samples_per_pixel, samples_per_pixel
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-    # end      
+                samples_per_pixel.times do |i|
+                  xml.mix :bitsPerSampleValue, bits[i]
+                end
+                xml.mix :samples_per_pixel, samples_per_pixel
+              end
+            end
+          end
+        end
+      end
+
+      File.open(File.join(resource_path, md_filename), "w") do |f|
+        f.write(xml.target!)
+      end
+      md_filename
+
+    end
+    
+    def generate_techmd_text(resource_path, asset_path, asset_filename, md_filename)
+      # Initialize Builder
+      xml = Builder::XmlMarkup.new(indent: 2)
+
+      xml.textmd :textMD, "xmlns:textmd" => "info:lc/xmlns/textMD-v3" do
+        xml.textmd :character_info do
+          xml.textmd :charset, "UTF-8"
+          xml.textmd :byte_order, "little"
+          xml.textmd :byte_size, 8
+          xml.textmd :character_size, "variable", encoding: "UTF-8"
+          xml.textmd :linebreak, "LF"
+        end
+      end
+
+      File.open(File.join(resource_path, md_filename), "w") do |f|
+        f.write(xml.target!)
+      end
+      md_filename
+
+    end    
   end
 end
