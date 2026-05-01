@@ -358,7 +358,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
       ],
       agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
     )
-    events << event
 
     if slide_doc.xpath("//Field[@iiif-plaintext='true']").any?
 
@@ -433,7 +432,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
           ],
           agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
         )
-        events << event      
       end
 
     end
@@ -448,7 +446,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
       ],
       agents: [ DOR::Agent.new(identifier: "mailto:rjmcinty@umich.edu", role: "imp") ]
     )
-    events << event    
 
   end
 
@@ -522,15 +519,11 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
     ],
     agents: [ DOR::Agent.new(identifier: "mailto:rjmcinty@umich.edu", role: "imp") ]
   )
-  events << event  
 
   DOR::Headers.update_resource_headers(resource.resource_path)
 
   # events
-  events.each do |event|
-    event_filename = File.join(events_path, "#{event.id}.premis.xml")
-    event.save!(event_filename)
-  end
+  DOR::Event.save!(events_path)
 end
 
 puts "-30-"

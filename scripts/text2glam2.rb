@@ -238,7 +238,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
         ],
         agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
       )
-      events << event      
 
       if !pagetext_href.nil? && !pagetext_href.empty?
         pagetext_xml = cache.get(pagetext_href + ";debug=qui")
@@ -294,7 +293,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
             ],
             agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
           )
-          events << event    
         end
 
         event = DOR::Event.new(
@@ -308,8 +306,6 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
           ],
           agents: [ DOR::Agent.new(identifier: "mailto:sooty@umich.edu", role: "imp") ]
         )
-        events << event
-
       end
 
       # DOR::Headers.update_resource_headers(fileset_resource.resource_path)
@@ -437,12 +433,9 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
     ],
     agents: [ DOR::Agent.new(identifier: "mailto:sooty@umich.edu", role: "imp") ]
   )
-  events << event  
 
   DOR::Headers.update_resource_headers(resource.resource_path)
 
-  events.each do |event|
-    event_filename = File.join(events_path, "#{event.id}.premis.xml")
-    event.save!(event_filename)
-  end
+  # events
+  DOR::Event.save!(events_path)
 end

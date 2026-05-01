@@ -155,8 +155,16 @@ module DOR
 
   class Event
     @@seed = 2026
+    @@events = []
 
     attr_accessor :id, :date_time, :event_type, :outcome, :detail, :objects, :agents
+
+    def self.save!(events_path)
+      @@events.each do |event|
+        event_filename = File.join(events_path, "#{event.id}.premis.xml")
+        event.save!(event_filename)
+      end
+    end
 
     def initialize(date_time:, event_type:, outcome:, detail:, objects: [], agents: [])
       @@seed += 1
@@ -167,6 +175,8 @@ module DOR
       @outcome = outcome
       @objects = objects
       @agents = agents
+      @@events << self
+      STDERR.puts "-- #{@@events.size}"
     end
 
     def save!(event_filename)
