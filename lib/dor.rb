@@ -1,5 +1,6 @@
 require 'uuidtools'
 require 'securerandom'
+require 'builder'
 
 require 'zlib'
 
@@ -166,6 +167,46 @@ module DOR
       @outcome = outcome
       @objects = objects
       @agents = agents
+    end
+
+    def save!(event_filename)
+      builder = Builder::XmlMarkup.new(:indent => 2)
+      builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
+      xml = builder.premis :event, "xmlns:premis" => "http://www.loc.gov/premis/v3" do |x|
+        x.premis :eventIdentifier do |x|
+          x.premis :eventIdentifierType, "UUID"
+          x.premis :eventIdentifierValue, self.id
+        end
+        x.premis :eventType,
+          DOR::PREMIS_MAP[self.event_type],
+          authority: "premis_event_type", 
+          authorityURI: "http://id.loc.gov/vocabulary/premis/eventType", 
+          valueURI: "http://id.loc.gov/vocabulary/premis/eventType/#{self.event_type}"
+        x.premis :eventDateTime, self.date_time.to_datetime.to_s
+        x.premis :eventDetailInformation do
+          x.premis :eventDetail, self.detail
+        end
+        x.premis :eventOutcomeInformation do
+          x.premis :eventOutcome, self.outcome
+        end
+        self.agents.each do |agent|
+          x.premis :linkingAgentIdentifier do |x|
+            x.premis :linkingAgentIdentifierType, "local"
+            x.premis :linkingAgentIdentifierValue, agent.identifier
+            x.premis :linkingAgentRole, DOR::PREMIS_MAP[agent.role]
+          end
+        end
+        self.objects.each do |object|
+          x.premis :linkingObjectIdentifier do |x|
+            x.premis :linkingObjectIdentifierType, "local"
+            x.premis :linkingObjectIdentifierValue, object.identifier
+            x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
+          end
+        end
+      end
+      File.open(event_filename, "w") do |f|
+        f.puts(xml)
+      end      
     end
   end
 

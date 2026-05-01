@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'sequel'
-require 'inifile'
 require 'optparse'
 require 'ostruct'
 require 'fileutils'
@@ -9,11 +7,9 @@ require 'json'
 require 'cgi'
 require 'uri'
 require 'http'
-require 'nanoid'
 require 'pp'
 require 'builder'
 require 'nokogiri'
-require 'open3'
 require 'debug'
 require 'tty-command'
 
@@ -21,13 +17,7 @@ require_relative '../lib/dor'
 require_relative '../lib/dor/headers'
 require_relative '../lib/dlxs'
 require_relative '../lib/dlxs/utils'
-
-# config = IniFile.load("#{ENV['DLXSROOT']}/bin/i/image/etc/package.conf")
-# $db = Sequel.connect(:adapter=>'mysql2', :host=>config['mysql']['host'], :database=>config['mysql']['database'], :user=>config['mysql']['user'], :password=>config['mysql']['password'], :encoding => 'utf8mb4')
-# $db.extension :select_remove
-
-$include_system_identifiers = false
-$include_updated_by = false
+require_relative '../lib/cache'
 
 # Register a custom function under a specific namespace URI
 Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new do
@@ -35,7 +25,6 @@ Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new 
     # The input from XSLT is often a NodeSet or an Array; 
     # we convert to string to hash it.
     str = input.is_a?(Enumerable) ? input.first.to_s : input.to_s
-    STDERR.puts "== hashing #{str}"
     DOR::to_xml_id(str.downcase)
   end
 
@@ -65,6 +54,7 @@ end)
 
 options = OpenStruct.new()
 options.output_path = "examples"
+options.dlxs_host = "quod.lib.umich.edu"
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
@@ -79,12 +69,11 @@ OptionParser.new do |opts|
   opts.on("--output_path OUTPUT_PATH", "output path") do |c|
     options.output_path = c
   end
+  opts.on("--host HOST", "DLXS host") do |c|
+    options.dlxs_host = c
+  end
   opts.on("--debug", "debug mode") do |v|
     options.debug = v
-  end
-  opts.on("--system_identifiers", "include system identifiers in header") do |v|
-    $include_system_identifiers = true
-    $include_updated_by = true
   end
 end.parse!
 
@@ -94,14 +83,11 @@ end
 
 Random.srand(1001)
 
-DLXS_HOST = "roger.quod.lib.umich.edu"
 XPATH_FN_NS = "http://www.w3.org/2005/xpath-functions"
 QUI_NS = "http://dlxs.org/quombat/ui"
-TEI_NS = "http://www.tei-c.org/ns/1.0"
 NSMAP = {
   'fn' => XPATH_FN_NS,
   'qui' => QUI_NS,
-  'tei' => TEI_NS,
   'glam' => "urn:umich:lib:dor:model:2026:resource:glam"
 }
 
@@ -112,42 +98,7 @@ structmap_stylesheet = Nokogiri::XSLT(File.open("etc/dlxs2structure.xsl"))
 # collect events
 events = []
 
-class Cache
-  require 'pstore'
-  CACHE_PATH = File.join("tmp", "cache")
-  BASE_URI = "https://roger.quod.lib.umich.edu/cgi/i/image"
-
-  def initialize(collid)
-    @session = HTTP.base_uri(BASE_URI).persistent
-    @cache = PStore.new(File.join(CACHE_PATH, "#{collid}.pstore"))
-    yield self if block_given?
-  end
-
-  def get(path)
-    response = @cache.transaction(true) do
-      if @cache.key?(path) and ! @cache[path].empty?
-        STDERR.puts "::: #{path}"
-        @cache[path]
-      else
-        nil
-      end
-    end
-    return response unless response.nil?
-
-    response = @cache.transaction do
-      response = @session.get(path)
-      STDERR.puts "<-- #{path}"
-      # pp response.headers.to_h
-      response = response.to_s
-      @cache[path] = response
-    end
-    response
-  end
-
-end
-
-
-Cache.new options.collid do |cache|
+Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
   entry_xml = cache.get("image-idx?cc=#{options.collid}&entryid=#{options.m_id}&view=entry&debug=xml")
   entry_doc = Nokogiri::XML(entry_xml)
   $updated_at = entry_doc.at_xpath("//TableMetadata/@update_time").value
@@ -179,6 +130,7 @@ Cache.new options.collid do |cache|
     end
   end
 
+  # fetch the internal DLXS identifier
   istruct_isentrydiv = entry_doc.at_xpath("//BookBagForm/HiddenVars/Variable[@name='bbidno']")&.text
 
   # alternate_id
@@ -256,7 +208,6 @@ Cache.new options.collid do |cache|
   source_metadata_sec << source_md
 
   # extract m_iid metadata and filesets
-
   slide_urls = []
   entry_doc.xpath("//RelatedViewsMenu/Option").each do |option_el|
     value = option_el.at_xpath("Value").text
@@ -270,9 +221,11 @@ Cache.new options.collid do |cache|
     slide_urls << "image-idx?cc=#{options.collid}&entryid=#{options.m_id}&view=entry&debug=xml"
   end
 
+  # append the istruct_ <Field> into entry_doc to use in the
+  # structure transform. Because not all `viewid` have 
+  # istruct_ metadata.
   slide_metadata_el = entry_doc.create_element("SlideMetadata")
   entry_doc.root.add_child(slide_metadata_el)
-
 
   slide_urls.each_with_index do |slide_url, slide_index|
     slide_xml = cache.get(slide_url)
@@ -301,9 +254,9 @@ Cache.new options.collid do |cache|
     end
     service_metadata_sec << service_md
 
-    frag_slide = entry_doc.create_element("slide")
-    frag_slide['identifier'] = slide_identifier
-    frag_slide['m_fn'] = m_fn
+    slide_md_el = entry_doc.create_element("slide")
+    slide_md_el['identifier'] = slide_identifier
+    slide_md_el['m_fn'] = m_fn
 
     source_md = {}
     source_md["$id"] = DOR::to_xml_id("#{slide_identifier}#source")
@@ -328,18 +281,19 @@ Cache.new options.collid do |cache|
         else
           source_md[abbrev] << value_el.text
         end
-        frag_slide << field_el.dup
+        slide_md_el << field_el.dup
         istruct_n += 1
       end
     end
     source_metadata_sec << source_md unless istruct_n == 0
-    slide_metadata_el << frag_slide unless istruct_n == 0
+    slide_metadata_el << slide_md_el unless istruct_n == 0
 
+    # there is no asset attached to this slide
     unless istruct_ms
       next
     end
 
-    # download file
+    # download file and configure fileset resource
     pending_id = "info:pending/#{options.collid}/#{m_fn}"
 
     fileset_resource = DOR::Resource.new("#{resource.id}/#{m_fn}")
@@ -425,6 +379,7 @@ Cache.new options.collid do |cache|
         end
       end
 
+      # this is dumb, sorry
       if options.collid == 'tinder'
         plaintext_text = tmp["fulltext#{slide_index + 1}"] || []
       end
@@ -523,8 +478,6 @@ Cache.new options.collid do |cache|
     )
   )
 
-  STDERR.puts slide_metadata_el.to_xml
-
   # structure
   structmap = structmap_stylesheet.transform(
     entry_doc,
@@ -541,7 +494,6 @@ Cache.new options.collid do |cache|
       content: structmap.to_xml
     )
   )
-
 
   # rights statement
   unless rights_statement.nil? or rights_statement.empty?
@@ -561,7 +513,6 @@ Cache.new options.collid do |cache|
   end
 
   event = DOR::Event.new(
-    # id: DOR::calculate_uuid("#{resource.id}#ingest", $default_uuid),
     event_type: "ing",
     date_time: $updated_at,
     outcome: "success",
@@ -578,43 +529,7 @@ Cache.new options.collid do |cache|
   # events
   events.each do |event|
     event_filename = File.join(events_path, "#{event.id}.premis.xml")
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
-    xml = builder.premis :event, "xmlns:premis" => "http://www.loc.gov/premis/v3" do |x|
-      x.premis :eventIdentifier do |x|
-        x.premis :eventIdentifierType, "UUID"
-        x.premis :eventIdentifierValue, event.id
-      end
-      x.premis :eventType,
-        DOR::PREMIS_MAP[event.event_type],
-        authority: "premis_event_type", 
-        authorityURI: "http://id.loc.gov/vocabulary/premis/eventType", 
-        valueURI: "http://id.loc.gov/vocabulary/premis/eventType/#{event.event_type}"
-      x.premis :eventDateTime, event.date_time.to_datetime.to_s
-      x.premis :eventDetailInformation do
-        x.premis :eventDetail, event.detail
-      end
-      x.premis :eventOutcomeInformation do
-        x.premis :eventOutcome, event.outcome
-      end
-      event.agents.each do |agent|
-        x.premis :linkingAgentIdentifier do |x|
-          x.premis :linkingAgentIdentifierType, "local"
-          x.premis :linkingAgentIdentifierValue, agent.identifier
-          x.premis :linkingAgentRole, DOR::PREMIS_MAP[agent.role]
-        end
-      end
-      event.objects.each do |object|
-        x.premis :linkingObjectIdentifier do |x|
-          x.premis :linkingObjectIdentifierType, "local"
-          x.premis :linkingObjectIdentifierValue, object.identifier
-          x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
-        end
-      end
-    end
-    File.open(event_filename, "w") do |f|
-      f.puts(xml)
-    end
+    event.save!(event_filename)
   end
 end
 

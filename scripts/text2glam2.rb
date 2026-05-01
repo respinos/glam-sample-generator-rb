@@ -1,27 +1,19 @@
 #!/usr/bin/env ruby
 
-require 'sequel'
-require 'inifile'
 require 'optparse'
 require 'ostruct'
 require 'nokogiri'
 require 'json'
 require 'http'
 require 'builder'
+require 'pp'
 
 require_relative '../lib/dor'
 require_relative '../lib/dor/headers'
 require_relative "../lib/dlxs"
 require_relative "../lib/dlxs/utils"
 require_relative "../lib/dlps_utils"
-require 'pp'
-
-require 'zlib'
-
-def to_xml_id_crc(input_string)
-  # Zlib.crc32 returns an unsigned 32-bit integer
-  "_#{Zlib.crc32(input_string).to_s(16)}"
-end
+require_relative "../lib/cache"
 
 # Register a custom function under a specific namespace URI
 Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new do
@@ -30,12 +22,10 @@ Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new 
     # we convert to string to hash it.
     str = input.is_a?(Enumerable) ? input.first.to_s : input.to_s
     STDERR.puts "== hashing #{str}"
-    to_xml_id_crc(str.downcase)
-    # "_" + Zlib.adler32(str).to_s(16)
+    DOR::to_xml_id(str.downcase)
   end
 end)
 
-DLXS_HOST = "quod.lib.umich.edu"
 XPATH_FN_NS = "http://www.w3.org/2005/xpath-functions"
 QUI_NS = "http://dlxs.org/quombat/ui"
 TEI_NS = "http://www.tei-c.org/ns/1.0"
@@ -46,14 +36,9 @@ NSMAP = {
   'glam' => "urn:umich:lib:dor:model:2026:resource:glam"
 }
 
-config = IniFile.load("#{ENV['DLXSROOT']}/bin/i/image/etc/package.conf")
-$db = Sequel.connect(:adapter=>'mysql2', :host=>config['mysql']['host'], :database=>config['mysql']['database'], :user=>config['mysql']['user'], :password=>config['mysql']['password'], :encoding => 'utf8mb4')
-$db.extension :select_remove
-
-$include_system_identifiers = false
-$include_updated_by = false
-
 options = OpenStruct.new()
+options.dlxs_host = "quod.lib.umich.edu"
+
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
     options.collid = c
@@ -67,6 +52,9 @@ OptionParser.new do |opts|
   opts.on("--output_path OUTPUT_PATH", "output path") do |c|
     options.output_path = c
   end
+  opts.on("--host HOST", "DLXS host") do |c|
+    options.dlxs_host = c
+  end  
 end.parse!
 
 if options.partner.nil?
@@ -81,51 +69,12 @@ idno = options.idno
 tei_stylesheet = Nokogiri::XSLT(File.open("etc/tei3to5.xsl"))
 structmap_stylesheet = Nokogiri::XSLT(File.open("etc/tei2structure.xsl"))
 
-text_api_url = "https://#{DLXS_HOST}/cgi/t/text/text-idx?cc=#{collid}&idno=#{idno}"
-pageviewer_api_url = "https://#{DLXS_HOST}/cgi/t/text/pageviewer-idx?cc=#{collid}&idno=#{idno}"
-iiif_api_url = "https://#{DLXS_HOST}/cgi/t/text/api/manifest/#{collid}:#{idno}"
-
 local_identifier = options.idno
 dlxs_url = "https://quod.lib.umich.edu/#{options.collid[0]}/#{options.collid}/#{idno}"
 tei_filename = "#{idno}~md.tei.xml"
 tei_fn = []
 
-class Cache
-  require 'pstore'
-  CACHE_PATH = File.join("tmp", "cache")
-  BASE_URI = "https://quod.lib.umich.edu/cgi/t/text"
-
-  def initialize(collid)
-    @session = HTTP.base_uri(BASE_URI).persistent
-    @cache = PStore.new(File.join(CACHE_PATH, "#{collid}.pstore"))
-    yield self if block_given?
-  end
-
-  def get(path)
-    response = @cache.transaction(true) do
-      if @cache.key?(path) and ! @cache[path].empty?
-        STDERR.puts "::: #{path}"
-        @cache[path]
-      else
-        nil
-      end
-    end
-    return response unless response.nil?
-
-    response = @cache.transaction do
-      response = @session.get(path)
-      STDERR.puts "<-- #{path}"
-      # pp response.headers.to_h
-      response = response.to_s
-      @cache[path] = response
-    end
-    response
-  end
-
-end
-
-
-Cache.new options.collid do |cache|
+Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
   local_identifier = options.idno
   toc_xml = cache.get("text-idx?cc=#{collid}&idno=#{idno}&view=toc&debug=qui").to_s
   toc_doc = Nokogiri::XML(toc_xml)  { |config| config.default_xml.noblanks }
@@ -206,7 +155,7 @@ Cache.new options.collid do |cache|
 
   metadata_sec = []
   metadata_sec << {
-    "$id": to_xml_id_crc("#{idno}#source"),
+    "$id": DOR::to_xml_id("#{idno}#source"),
     "$node": idno,
     "$function": [DOR::URN("function", "service")],
   }
@@ -406,7 +355,7 @@ Cache.new options.collid do |cache|
       node_md["dcterms.bibliographicCitation"] = [citation.join(", ")]
 
       other_md = {}
-      other_md["$id"] = to_xml_id_crc("#{div1_el['glam:node']}#service")
+      other_md["$id"] = DOR::to_xml_id("#{div1_el['glam:node']}#service")
       other_md["$node"] = div1_el['glam:node']
       other_md["$function"] = [DOR::URN("function", "service")]
       other_md["dc.title.section"] = node_md["dc.title.section"]
@@ -421,7 +370,7 @@ Cache.new options.collid do |cache|
         node_type = div_el['type'].downcase
         node_md["dc.title.#{node_type}"] = [div_el.at_xpath("tei:head", **NSMAP)&.text]
         other_md = {}
-        other_md["$id"] = to_xml_id_crc("#{div_el['glam:node']}#service")
+        other_md["$id"] = DOR::to_xml_id("#{div_el['glam:node']}#service")
         other_md["$node"] = div_el['glam:node']
         other_md["$function"] = [DOR::URN("function", "service")]
         other_md["dc.title.#{node_type}"] = node_md["dc.title.#{node_type}"]
@@ -494,43 +443,6 @@ Cache.new options.collid do |cache|
 
   events.each do |event|
     event_filename = File.join(events_path, "#{event.id}.premis.xml")
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
-    xml = builder.premis :event, "xmlns:premis" => "http://www.loc.gov/premis/v3" do |x|
-      x.premis :eventIdentifier do |x|
-        x.premis :eventIdentifierType, "UUID"
-        x.premis :eventIdentifierValue, event.id
-      end
-      x.premis :eventType,
-        DOR::PREMIS_MAP[event.event_type],
-        authority: "premis_event_type", 
-        authorityURI: "http://id.loc.gov/vocabulary/premis/eventType", 
-        valueURI: "http://id.loc.gov/vocabulary/premis/eventType/#{event.event_type}"
-      x.premis :eventDateTime, event.date_time.to_datetime.to_s
-      x.premis :eventDetailInformation do
-        x.premis :eventDetail, event.detail
-      end
-      x.premis :eventOutcomeInformation do
-        x.premis :eventOutcome, event.outcome
-      end
-      event.agents.each do |agent|
-        x.premis :linkingAgentIdentifier do |x|
-          x.premis :linkingAgentIdentifierType, "local"
-          x.premis :linkingAgentIdentifierValue, agent.identifier
-          x.premis :linkingAgentRole, DOR::PREMIS_MAP[agent.role]
-        end
-      end
-      event.objects.each do |object|
-        x.premis :linkingObjectIdentifier do |x|
-          x.premis :linkingObjectIdentifierType, "local"
-          x.premis :linkingObjectIdentifierValue, object.identifier
-          x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
-        end
-      end
-    end
-    File.open(event_filename, "w") do |f|
-      f.puts(xml)
-    end
-  end  
-
+    event.save!(event_filename)
+  end
 end
