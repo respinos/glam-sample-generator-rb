@@ -1,6 +1,8 @@
 require 'uuidtools'
 require 'securerandom'
 
+require 'zlib'
+
 module DOR
   module_function
 
@@ -25,6 +27,10 @@ module DOR
 
   def calculate_uuid(resource_path, namespace)
     UUIDTools::UUID.sha1_create(namespace, resource_path).to_s
+  end
+
+  def to_xml_id(str)
+      "_#{Zlib.crc32(str).to_s(16)}"
   end
 
   def generate_past_uuid7(time, seed: 2026)

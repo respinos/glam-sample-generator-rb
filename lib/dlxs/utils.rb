@@ -120,5 +120,80 @@ module DLXS
       end
       md_filename
     end
+
+    # def generate_techmd_image(file)
+    #   # Initialize Exiftool and fetch metadata
+    #   # file[:pathandfilename] assumes 'file' is a Hash
+    #   metadata = Exiftool.new(file[:pathandfilename]).to_hash
+      
+    #   # Determine Resolution Unit
+    #   unit = case metadata[:resolution_unit]&.downcase
+    #         when /inch|in/ then 'in.'
+    #         when /cm|centimeter/ then 'cm'
+    #         else 'no absolute unit'
+    #         end
+
+    #   # Determine Byte Order
+    #   byte_order = metadata[:exif_byte_order]&.downcase =~ /little/ ? 'little endian' : 'big endian'
+
+    #   # Initialize Builder
+    #   xml = Builder::XmlMarkup.new(indent: 2)
+
+    #   xml.mix :mix do
+    #     xml.mix :BasicDigitalObjectInformation do
+    #       xml.mix :FormatDesignation do
+    #         xml.mix :formatName, metadata[:mime_type]
+    #       end
+          
+    #       xml.mix :ObjectIdentifier do
+    #         xml.mix :objectIdentiferType, "Exiftool (Ruby)"
+    #         xml.mix :objectIdentifierValue, "#{file[:basename]}#{file[:suffix]}"
+    #       end
+          
+    #       xml.mix :byteOrder, byte_order
+          
+    #       xml.mix :Compression do
+    #         xml.mix :compressionScheme, metadata[:compression]
+    #       end
+    #     end
+
+    #     xml.mix :BasicImageInformation do
+    #       xml.mix :BasicImageCharacteristics do
+    #         xml.mix :imageWidth, metadata[:image_width]
+    #         xml.mix :imageHeight, metadata[:image_height]
+    #         xml.mix :PhotometricInterpretation do
+    #           xml.mix :colorSpace, metadata[:color_space]
+    #         end
+    #       end
+
+    #       xml.mix :ImageAssessmentMetadata do
+    #         xml.mix :SpacialMetrics do
+    #           xml.mix :samplingFrequencyUnit, unit
+    #           xml.mix :xSamplingFrequency do
+    #             xml.mix :numerator, metadata[:x_resolution]
+    #             xml.mix :denominator, 1
+    #           end
+    #           xml.mix :ySamplingFrequency do
+    #             xml.mix :numerator, metadata[:y_resolution]
+    #             xml.mix :denominator, 1
+    #           end
+    #         end
+
+    #         xml.mix :ImageColorEncoding do
+    #           xml.mix :BitsPerSample do
+    #             # Handle space-separated bits per sample (e.g., "8 8 8")
+    #             bits = metadata[:bits_per_sample].to_s.split(' ')
+    #             samples_per_pixel = metadata[:samples_per_pixel].to_i
+                
+    #             samples_per_pixel.times do |i|
+    #               xml.mix :bitsPerSampleValue, bits[i]
+    #             end
+    #             xml.mix :samples_per_pixel, samples_per_pixel
+    #           end
+    #         end
+    #       end
+    #     end
+    #   end
+    # end      
   end
 end
