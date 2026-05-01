@@ -7,6 +7,7 @@ require 'ostruct'
 require 'nokogiri'
 require 'json'
 require 'http'
+require 'builder'
 
 require_relative '../lib/dor'
 require_relative '../lib/dor/headers'
@@ -83,7 +84,6 @@ structmap_stylesheet = Nokogiri::XSLT(File.open("etc/tei2structure.xsl"))
 text_api_url = "https://#{DLXS_HOST}/cgi/t/text/text-idx?cc=#{collid}&idno=#{idno}"
 pageviewer_api_url = "https://#{DLXS_HOST}/cgi/t/text/pageviewer-idx?cc=#{collid}&idno=#{idno}"
 iiif_api_url = "https://#{DLXS_HOST}/cgi/t/text/api/manifest/#{collid}:#{idno}"
-$updated_at = Time.now.to_datetime.to_s
 
 local_identifier = options.idno
 dlxs_url = "https://quod.lib.umich.edu/#{options.collid[0]}/#{options.collid}/#{idno}"
@@ -124,20 +124,17 @@ class Cache
 
 end
 
-# Cache.new options.collid do |cache|
-#   local_identifier = options.idno
-#   toc_xml = cache.get("text-idx?cc=#{collid}&idno=#{idno}&view=toc&debug=qui").to_s
-#   toc_doc = Nokogiri::XML(toc_xml)  { |config| config.default_xml.noblanks }
-# end
-# exit
-
 
 Cache.new options.collid do |cache|
   local_identifier = options.idno
   toc_xml = cache.get("text-idx?cc=#{collid}&idno=#{idno}&view=toc&debug=qui").to_s
   toc_doc = Nokogiri::XML(toc_xml)  { |config| config.default_xml.noblanks }
 
+  $updated_at = toc_doc.at_xpath("//qui:metadata/@modified").value
+  $updated_at = DateTime.iso8601($updated_at)
+
   core_md = {}
+  core_md["dc.identifier"] = [idno]
   toc_doc.xpath('//qui:metadata/qui:field').each do |field_el|
     key = "dc.#{field_el['key']}"
     core_md[key] = []
@@ -178,6 +175,8 @@ Cache.new options.collid do |cache|
   STDERR.puts ":: exporting to #{submission_path}"
   FileUtils.mkdir_p(data_path)
   FileUtils.mkdir_p(events_path)
+
+  events = []
 
   File.open(File.join(submission_path, "dor-info.txt"), "w") do |f|
     f.puts "Root-Identifier: #{local_identifier}"
@@ -279,6 +278,19 @@ Cache.new options.collid do |cache|
         )
       )
 
+      event = DOR::Event.new(
+        event_type: "mee",
+        date_time: $updated_at,
+        outcome: "success",
+        detail: "Extracted technical metadata for #{asset_file.content_path} using jhove",
+        objects: [ 
+          DOR::Agent.new(identifier: asset_file.id, role: "src"),
+          DOR::Agent.new(identifier: asset_md_file.id, role: "out")
+        ],
+        agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+      )
+      events << event      
+
       if !pagetext_href.nil? && !pagetext_href.empty?
         pagetext_xml = cache.get(pagetext_href + ";debug=qui")
         pagetext_doc = Nokogiri::XML(pagetext_xml)  { |config| config.default_xml.noblanks }
@@ -294,7 +306,7 @@ Cache.new options.collid do |cache|
           plaintext_path = DLXS::Utils::generate_plaintext(fileset_resource.resource_path, plaintext_asset)
 
           fileset_resource.add_file(
-            text_file = DOR::ResourceFile.new(
+            plaintext_file = DOR::ResourceFile.new(
               id: File.join(fileset_resource.id, plaintext_path),
               parent: fileset_resource.id,
               content_path: File.basename(plaintext_path),
@@ -320,7 +332,35 @@ Cache.new options.collid do |cache|
               function: [DOR::URN("function", "technical")]
             )
           )
+
+          event = DOR::Event.new(
+            # id: DOR::calculate_uuid("#{asset[:basename]}.plaintext.mee", $default_uuid),
+            event_type: "mee",
+            date_time: $updated_at,
+            outcome: "success",
+            detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
+            objects: [ 
+              DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
+              DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
+            ],
+            agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+          )
+          events << event    
         end
+
+        event = DOR::Event.new(
+          # id: DOR::calculate_uuid("#{resource.id}#ingest", $default_uuid),
+          event_type: "ing",
+          date_time: $updated_at,
+          outcome: "success",
+          detail: "Submitted #{pending_id} for packaging",
+          objects: [ 
+            DOR::Agent.new(identifier: pending_id, role: "src"),
+          ],
+          agents: [ DOR::Agent.new(identifier: "mailto:sooty@umich.edu", role: "imp") ]
+        )
+        events << event
+
       end
 
       # DOR::Headers.update_resource_headers(fileset_resource.resource_path)
@@ -435,8 +475,62 @@ Cache.new options.collid do |cache|
         content: JSON.pretty_generate(rights_md)
       )
     )
-  end  
+  end
+
+  event = DOR::Event.new(
+    # id: DOR::calculate_uuid("#{resource.id}#ingest", $default_uuid),
+    event_type: "ing",
+    date_time: $updated_at,
+    outcome: "success",
+    detail: "Submitted #{resource.id} for ingestion",
+    objects: [ 
+      DOR::Agent.new(identifier: resource.id, role: "src"),
+    ],
+    agents: [ DOR::Agent.new(identifier: "mailto:sooty@umich.edu", role: "imp") ]
+  )
+  events << event  
 
   DOR::Headers.update_resource_headers(resource.resource_path)
+
+  events.each do |event|
+    event_filename = File.join(events_path, "#{event.id}.premis.xml")
+    builder = Builder::XmlMarkup.new(:indent => 2)
+    builder.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
+    xml = builder.premis :event, "xmlns:premis" => "http://www.loc.gov/premis/v3" do |x|
+      x.premis :eventIdentifier do |x|
+        x.premis :eventIdentifierType, "UUID"
+        x.premis :eventIdentifierValue, event.id
+      end
+      x.premis :eventType,
+        DOR::PREMIS_MAP[event.event_type],
+        authority: "premis_event_type", 
+        authorityURI: "http://id.loc.gov/vocabulary/premis/eventType", 
+        valueURI: "http://id.loc.gov/vocabulary/premis/eventType/#{event.event_type}"
+      x.premis :eventDateTime, event.date_time.to_datetime.to_s
+      x.premis :eventDetailInformation do
+        x.premis :eventDetail, event.detail
+      end
+      x.premis :eventOutcomeInformation do
+        x.premis :eventOutcome, event.outcome
+      end
+      event.agents.each do |agent|
+        x.premis :linkingAgentIdentifier do |x|
+          x.premis :linkingAgentIdentifierType, "local"
+          x.premis :linkingAgentIdentifierValue, agent.identifier
+          x.premis :linkingAgentRole, DOR::PREMIS_MAP[agent.role]
+        end
+      end
+      event.objects.each do |object|
+        x.premis :linkingObjectIdentifier do |x|
+          x.premis :linkingObjectIdentifierType, "local"
+          x.premis :linkingObjectIdentifierValue, object.identifier
+          x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
+        end
+      end
+    end
+    File.open(event_filename, "w") do |f|
+      f.puts(xml)
+    end
+  end  
 
 end
