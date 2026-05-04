@@ -5,7 +5,30 @@ require_relative '../../dor/headers'
 require 'json'
 
 module DLXS
+
   class CGI
+
+    module ImageUtil
+      def get_field_value(field_el)
+        values = []
+        field_el.xpath(".//Values/Value").each do |value_el|
+          if ! value_el['link'].nil? and ! value_el['link'].include?("view=reslist")
+            values << {
+              "$type" => "text/html",
+              "value" => %Q(<a href="#{value_el['link']}">#{value_el.text}</a>)
+            }
+          elsif ! value_el.elements.empty?
+            values << {
+              "$type" => "text/html",
+              "value" => value_el.inner_html
+            }
+          else
+            values << value_el.text
+          end
+        end
+        values
+      end
+    end
 
     class Context
       attr_accessor :collid, :partner, :m_id, :m_iid, :m_fn, :cache, :submission
@@ -33,27 +56,8 @@ module DLXS
       end
     end
 
-    def get_field_value(field_el)
-      values = []
-      field_el.xpath(".//Values/Value").each do |value_el|
-        if ! value_el['link'].nil? and ! value_el['link'].include?("view=reslist")
-          values << {
-            "$type" => "text/html",
-            "value" => %Q(<a href="#{value_el['link']}">#{value_el.text}</a>)
-          }
-        elsif ! value_el.elements.empty?
-          values << {
-            "$type" => "text/html",
-            "value" => value_el.inner_html
-          }
-        else
-          values << value_el.text
-        end
-      end
-      values
-    end
-
     class Image < CGI
+      include ImageUtil
       attr_accessor :collid, :partner, :m_id, :cache, :updated_at
 
       def initialize(context:)
@@ -311,6 +315,8 @@ module DLXS
     end
 
     class Fileset < CGI
+      include ImageUtil
+
       def initialize(resource:, context:, slide_doc:, index:)
         @collid = context.collid
         @partner = context.partner

@@ -6,9 +6,11 @@ require_relative '../dor'
 
 XPATH_FN_NS = "http://www.w3.org/2005/xpath-functions"
 QUI_NS = "http://dlxs.org/quombat/ui"
+TEI_NS = "http://www.tei-c.org/ns/1.0"
 NSMAP = {
   'fn' => XPATH_FN_NS,
   'qui' => QUI_NS,
+  'tei' => TEI_NS,
   'glam' => "urn:umich:lib:dor:model:2026:resource:glam"
 }
 
