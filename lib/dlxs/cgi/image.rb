@@ -33,6 +33,26 @@ module DLXS
       end
     end
 
+    def get_field_value(field_el)
+      values = []
+      field_el.xpath(".//Values/Value").each do |value_el|
+        if ! value_el['link'].nil? and ! value_el['link'].include?("view=reslist")
+          values << {
+            "$type" => "text/html",
+            "value" => %Q(<a href="#{value_el['link']}">#{value_el.text}</a>)
+          }
+        elsif ! value_el.elements.empty?
+          values << {
+            "$type" => "text/html",
+            "value" => value_el.inner_html
+          }
+        else
+          values << value_el.text
+        end
+      end
+      values
+    end
+
     class Image < CGI
       attr_accessor :collid, :partner, :m_id, :cache, :updated_at
 
@@ -166,22 +186,7 @@ module DLXS
           next if abbrev.start_with?("istruct_")
           next if abbrev == "dc_ri" || abbrev == "dlxs_ri"
           next if field_el['iiif-plaintext'] == "true"
-          source_md[abbrev] ||= []
-          field_el.xpath(".//Values/Value").each do |value_el|
-            if ! value_el['link'].nil? and ! value_el['link'].include?("view=reslist")
-              source_md[abbrev] << {
-                "$type" => "text/html",
-                "value" => %Q(<a href="#{value_el['link']}">#{value_el.text}</a>)
-              }
-            elsif ! value_el.elements.empty?
-              source_md[abbrev] << {
-                "$type" => "text/html",
-                "value" => value_el.inner_html
-              }
-            else
-              source_md[abbrev] << value_el.text
-            end
-          end
+          source_md[abbrev] = get_field_value(field_el)
         end
         @source_metadata_sec << source_md
       end
@@ -241,27 +246,12 @@ module DLXS
         slide_doc.xpath("//Record[@name='entry']//Field").each do |field_el|
           abbrev = field_el['abbrev']
           next unless abbrev.start_with?("istruct_")
-          source_md[abbrev] ||= []
-          field_el.xpath(".//Values/Value").each do |value_el|
-            if ! value_el['link'].nil? and ! value_el['link'].include?("view=reslist")
-              source_md[abbrev] << {
-                "$type" => "text/html",
-                "value" => %Q(<a href="#{value_el['link']}">#{value_el.text}</a>)
-              }
-            elsif ! value_el.elements.empty?
-              source_md[abbrev] << {
-                "$type" => "text/html",
-                "value" => value_el.inner_html
-              }
-            else
-              source_md[abbrev] << value_el.text
-            end
-            slide_md_el << field_el.dup
-            istruct_n += 1
-          end
+          source_md[abbrev] = get_field_value(field_el)
+          istruct_n += 1 unless source_md[abbrev].empty?
+          slide_md_el << field_el.dup
         end
         @source_metadata_sec << source_md unless istruct_n == 0
-        @slide_metadata_el << slide_md_el unless istruct_n == 0
+        @slides_el << slide_md_el unless istruct_n == 0
 
         # there is no asset attached to this slide
         if istruct_ms
@@ -320,7 +310,7 @@ module DLXS
       end
     end
 
-    class Fileset
+    class Fileset < CGI
       def initialize(resource:, context:, slide_doc:, index:)
         @collid = context.collid
         @partner = context.partner

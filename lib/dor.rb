@@ -7,10 +7,10 @@ require 'zlib'
 module DOR
   module_function
 
-  $default_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fixtures")
-  $fileset_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fileset")
-  $submission_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "submission")
-  $proposed_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "proposed")
+  DEFAULT_UUID = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fixtures")
+  FILESET_UUID = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "fileset")
+  SUBMISSION_UUID = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "submission")
+  PROPOSED_UUID = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "proposed")
 
   PREMIS_MAP = {
     "mee" => "metadata extraction",
@@ -77,7 +77,7 @@ module DOR
     end
 
     def setup!()
-      @id = DOR::calculate_uuid(@local_identifier, $submission_uuid)
+      @id = DOR::calculate_uuid(@local_identifier, DOR::SUBMISSION_UUID)
       @submission_path = File.join(@output_path, @id)
       if File.exist?(@submission_path)
         FileUtils.rm_rf(@submission_path)
@@ -128,7 +128,6 @@ module DOR
         datum = {}
         datum[:id] = "info:root/#{resource_file.id}"
         datum[:parent] = resource_file.parent.nil? ? "info:root" : File.join("info:root", resource_file.parent.to_s)
-        datum[:systemIdentifier] = DOR::calculate_uuid(datum[:id], $default_uuid) if $include_system_identifiers
         unless resource_file.partner_id.nil?
           datum[:partnerId] = resource_file.partner_id
         end
@@ -145,12 +144,7 @@ module DOR
           datum[:filename] = resource_file.filename
         end
         datum[:digests] = []
-        if $include_updated_by
-          datum[:updatedAt] = resource_file.updated_at
-          datum[:updatedBy] = "dlxsadm@dlxs.umich.edu"
-        else
-          datum[:updated] = resource_file.updated_at
-        end
+        datum[:updated] = resource_file.updated_at
         datum[:deleted] = false
         datum[:visibility] = "visible"
         datum[:contentPath] = resource_file.content_path
