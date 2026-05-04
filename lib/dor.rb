@@ -69,13 +69,15 @@ module DOR
   end
 
   class Submission
-    attr_accessor :id, :data_path, :events_path
-    def initialize(output_path:)
+    attr_accessor :id, :data_path, :events_path, :submission_path
+    def initialize(output_path:, local_identifier:)
       @output_path = output_path
+      @local_identifier = local_identifier
+      setup!
     end
 
-    def setup!(local_identifier:)
-      @id = DOR::calculate_uuid(local_identifier, $submission_uuid)
+    def setup!()
+      @id = DOR::calculate_uuid(@local_identifier, $submission_uuid)
       @submission_path = File.join(@output_path, @id)
       if File.exist?(@submission_path)
         FileUtils.rm_rf(@submission_path)
@@ -85,11 +87,18 @@ module DOR
       @events_path = File.join(@submission_path, "events")
       FileUtils.mkdir_p(@data_path)
       FileUtils.mkdir_p(@events_path)
+      generate_dor_info
     end
 
-    def open(filename, &block)
-      STDERR.puts "#{@submission_path} :: #{filename}"
-      File.open(File.join(@submission_path, filename), "w", &block)
+    def generate_dor_info
+      File.open(File.join(@submission_path, "dor-info.txt"), "w") do |f|
+        f.puts "Root-Identifier: #{@local_identifier}"
+        f.puts "Resource-Type: #{DOR::URN("resource:glam")}"
+        f.puts "Action: Commit"
+        f.puts "Agent-Name: Barbara Jensen"
+        f.puts "Agent-Address: mailto:bjensen@umich.edu"
+        f.puts "Version-Message: Migrating #{@local_identifier} from DLXS"
+      end
     end
   end
 

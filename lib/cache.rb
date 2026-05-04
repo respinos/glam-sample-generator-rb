@@ -1,3 +1,5 @@
+require 'http'
+
 class Cache
   require 'pstore'
   CACHE_PATH = File.join("tmp", "cache")

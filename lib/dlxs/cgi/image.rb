@@ -5,28 +5,50 @@ require 'json'
 module DLXS
   class CGI
 
-    class Image < CGI
-      attr_accessor :collid, :partner, :m_id, :cache, :submission, :updated_at
+    class Context
+      attr_accessor :collid, :partner, :m_id, :m_iid, :m_fn, :cache, :submission
 
-      def initialize(collid:, m_id:, cache:, submission:)
+      def initialize(collid:, partner:, m_id:,  m_iid: nil, m_fn: nil, cache:, submission:)
         @collid = collid
-        @partner = @collid
+        @partner = partner
         @m_id = m_id
+        @m_iid = m_iid
+        @m_fn = m_fn
         @cache = cache
-        @local_identifier = "#{collid}.#{m_id}"
         @submission = submission
       end
 
+      def fork(m_iid:, m_fn:)
+        self.class.new(
+          collid: @collid,
+          partner: @partner,
+          m_id: @m_id,
+          m_iid: m_iid,
+          m_fn: m_fn,
+          cache: @cache,
+          submission: @submission
+        )
+      end
+    end
+
+    class Image < CGI
+      attr_accessor :collid, :partner, :m_id, :cache, :updated_at
+
+      def initialize(context:)
+        @context = context
+        @collid = context.collid
+        @partner = context.partner
+        @m_id = context.m_id
+        @cache = context.cache
+        @local_identifier = context.submission.id
+      end
+
       def export_submission
-
-        @submission.setup!(local_identifier: @local_identifier)
-        generate_dor_info
-
         fetch_entry
         generate_resource
         generate_slides
 
-        DOR::Event.save!(submission: @submission)
+        DOR::Event.save!(submission: @context.submission)
       end
     
       def fetch_entry
@@ -40,20 +62,9 @@ module DLXS
         @slides_el = @entry_doc.root.add_child(slide_metadata_el)
       end
 
-      def generate_dor_info
-        @submission.open("dor-info.txt") do |f|
-          f.puts "Root-Identifier: #{@local_identifier}"
-          f.puts "Resource-Type: #{DOR::URN("resource:glam")}"
-          f.puts "Action: Commit"
-          f.puts "Agent-Name: Barbara Jensen"
-          f.puts "Agent-Address: mailto:bjensen@umich.edu"
-          f.puts "Version-Message: Migrating #{@local_identifier} from DLXS"
-        end
-      end
-
       def generate_resource
         @resource = DOR::Resource.new(@local_identifier)
-        @resource.setup!(@submission.data_path)
+        @resource.setup!(@context.submission.data_path)
         @resource.add_file(
           DOR::ResourceFile.new(
             id: @resource.id,
@@ -253,14 +264,9 @@ module DLXS
         if istruct_ms
           Fileset.new(
             resource: @resource,
-            collid: @collid,
-            partner: @partner,
-            m_id: m_id,
-            m_iid: m_iid,
-            m_fn: m_fn,
+            context: @context.fork(m_iid: m_iid, m_fn: m_fn),
             slide_doc: slide_doc,
             index: index,
-            cache: @cache
           ).generate_fileset
         end
       end
@@ -312,23 +318,23 @@ module DLXS
     end
 
     class Fileset
-      def initialize(resource:, cache:, collid:, partner:, m_id:, m_iid:, m_fn:, slide_doc:, index:)
-        @collid = collid
-        @partner = partner
-        @m_id = m_id
-        @m_iid = m_iid
-        @m_fn = m_fn
+      def initialize(resource:, context:, slide_doc:, index:)
+        @collid = context.collid
+        @partner = context.partner
+        @m_id = context.m_id
+        @m_iid = context.m_iid
+        @m_fn = context.m_fn
         @resource = resource
         @slide_doc = slide_doc
-        @updated_at = DateTime.iso8601(@slide_doc.at_xpath("//MediaInfo/modified").value.sub(" ", "T"))
-        @cache = cache
+        @updated_at = DateTime.iso8601(@slide_doc.at_xpath("//MediaInfo/modified").text.sub(" ", "T"))
+        @cache = context.cache
         @index = index
       end
 
       def generate_fileset
         pending_id = "info:pending/#{@collid}/#{@m_fn}"
         @fileset_resource = DOR::Resource.new("#{@resource.id}/#{@m_fn}")
-        @fileset_resource.setup!(File.dirname(@resource.resourcepath))
+        @fileset_resource.setup!(File.dirname(@resource.resource_path))
         @fileset_resource.add_file(
           DOR::ResourceFile.new(
             id: @fileset_resource.id,
@@ -424,54 +430,56 @@ module DLXS
         end
 
         plaintext_text = plaintext_text.join("\n")
-        unless plaintext_text.empty?
+        if plaintext_text.empty?
+          return
+        end
 
-          plaintext_asset = {
-            basename: @m_fn,
-            content: plaintext_text,
-            producer: 'zooniverse'
-          }
+        plaintext_asset = {
+          basename: @m_fn,
+          content: plaintext_text,
+          producer: 'zooniverse'
+        }
 
-          plaintext_path = DLXS::Utils::generate_plaintext(@fileset_resource.resource_path, plaintext_asset)
-          @fileset_resource.add_file(
-            plaintext_file = DOR::ResourceFile.new(
-              id: File.join(@fileset_resource.id, plaintext_path),
-              parent: @fileset_resource.id,
-              content_path: File.basename(plaintext_path),
-              mime_type: plaintext_mime_type,
-              interaction_model: DOR::URN("file", plaintext_mime_type == "text/html" ? "html" : "plaintext"),
-              updated_at: @updated_at,
-              filename: File.basename(plaintext_path),
-              function: [DOR::URN("function", "service"), DOR::URN("function", "source")]
-            )
+        plaintext_path = DLXS::Utils::generate_plaintext(@fileset_resource.resource_path, plaintext_asset)
+        @fileset_resource.add_file(
+          plaintext_file = DOR::ResourceFile.new(
+            id: File.join(@fileset_resource.id, plaintext_path),
+            parent: @fileset_resource.id,
+            content_path: File.basename(plaintext_path),
+            mime_type: plaintext_mime_type,
+            interaction_model: DOR::URN("file", plaintext_mime_type == "text/html" ? "html" : "plaintext"),
+            updated_at: @updated_at,
+            filename: File.basename(plaintext_path),
+            function: [DOR::URN("function", "service"), DOR::URN("function", "source")]
           )
+        )
 
-          plaintext_md_path = DLXS::Utils::generate_techmd(@fileset_resource.resource_path, plaintext_path)
+        plaintext_md_path = DLXS::Utils::generate_techmd(@fileset_resource.resource_path, plaintext_path)
 
-          @fileset_resource.add_file(
-            plaintext_md_file = DOR::ResourceFile.new(
-              id: File.join(@fileset_resource.id, plaintext_md_path),
-              parent: @fileset_resource.id,
-              content_path: File.basename(plaintext_md_path),
-              mime_type: "application/xml",
-              interaction_model: DOR::URN("metadata", "textmd"),
-              updated_at: @updated_at,
-              filename: File.basename(plaintext_md_path),
-              function: [DOR::URN("function", "technical")]
-            )
+        @fileset_resource.add_file(
+          plaintext_md_file = DOR::ResourceFile.new(
+            id: File.join(@fileset_resource.id, plaintext_md_path),
+            parent: @fileset_resource.id,
+            content_path: File.basename(plaintext_md_path),
+            mime_type: "application/xml",
+            interaction_model: DOR::URN("metadata", "textmd"),
+            updated_at: @updated_at,
+            filename: File.basename(plaintext_md_path),
+            function: [DOR::URN("function", "technical")]
           )
+        )
 
-          event = DOR::Event.new(
-            event_type: "mee",
-            date_time: @updated_at,
-            outcome: "success",
-            detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
-            objects: [ 
-              DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
-              DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
-            ],
-            agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
-          )
+        event = DOR::Event.new(
+          event_type: "mee",
+          date_time: @updated_at,
+          outcome: "success",
+          detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
+          objects: [ 
+            DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
+            DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
+          ],
+          agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+        )
 
       end
     end
