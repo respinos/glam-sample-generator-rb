@@ -21,7 +21,7 @@ class Cache
 
     response = @cache.transaction do
       response = @session.get(path)
-      unless response.success?
+      unless response.status.success?
         raise "Failed to fetch #{path}: #{response.status}"
       end
       STDERR.puts "<-- #{path}"

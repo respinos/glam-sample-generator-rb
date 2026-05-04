@@ -66,7 +66,32 @@ module DOR
     part5 = rand_hex[6..17]
 
   "#{part1}-#{part2}-#{part3}-#{part4}-#{part5}"
-  end  
+  end
+
+  class Submission
+    attr_accessor :id, :data_path, :events_path
+    def initialize(output_path:)
+      @output_path = output_path
+    end
+
+    def setup!(local_identifier:)
+      @id = DOR::calculate_uuid(local_identifier, $submission_uuid)
+      @submission_path = File.join(@output_path, @id)
+      if File.exist?(@submission_path)
+        FileUtils.rm_rf(@submission_path)
+      end
+
+      @data_path = File.join(@submission_path, "data")
+      @events_path = File.join(@submission_path, "events")
+      FileUtils.mkdir_p(@data_path)
+      FileUtils.mkdir_p(@events_path)
+    end
+
+    def open(filename, &block)
+      STDERR.puts "#{@submission_path} :: #{filename}"
+      File.open(File.join(@submission_path, filename), "w", &block)
+    end
+  end
 
   class Resource
     attr_accessor :id, :resource_path, :header_path, :interaction_model, :mime_type, :digests, :content_size
@@ -159,7 +184,8 @@ module DOR
 
     attr_accessor :id, :date_time, :event_type, :outcome, :detail, :objects, :agents
 
-    def self.save!(events_path)
+    def self.save!(submission:)
+      events_path = submission.events_path
       @@events.each do |event|
         event_filename = File.join(events_path, "#{event.id}.premis.xml")
         event.save!(event_filename)
