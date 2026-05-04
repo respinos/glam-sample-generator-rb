@@ -1,5 +1,7 @@
 require_relative '../xml'
 require_relative '../../dor'
+require_relative '../../dor/headers'
+
 require 'json'
 
 module DLXS
@@ -48,6 +50,7 @@ module DLXS
         generate_resource
         generate_slides
 
+        DOR::Headers.update_resource_headers(@resource.resource_path)
         DOR::Event.save!(submission: @context.submission)
       end
     

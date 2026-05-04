@@ -3,8 +3,6 @@
 require 'optparse'
 require 'ostruct'
 
-require_relative '../lib/dor'
-require_relative '../lib/dor/headers'
 require_relative '../lib/dlxs'
 require_relative '../lib/dlxs/utils'
 require_relative '../lib/cache'
