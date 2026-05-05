@@ -242,9 +242,10 @@ module DOR
           end
         end
         self.objects.each do |object|
+          object_id = File.join("info:root", object.identifier) unless object.identifier.start_with?("info:root")
           x.premis :linkingObjectIdentifier do |x|
             x.premis :linkingObjectIdentifierType, "local"
-            x.premis :linkingObjectIdentifierValue, object.identifier
+            x.premis :linkingObjectIdentifierValue, object_id
             x.premis :linkingObjectRole, DOR::PREMIS_MAP[object.role]
           end
         end
