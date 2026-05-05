@@ -9,8 +9,8 @@ require_relative '../lib/cache'
 require_relative '../lib/dlxs/cgi/image'
 
 options = OpenStruct.new()
-options.output_path = "examples"
 options.dlxs_host = "quod.lib.umich.edu"
+options.do_bundle = true
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
@@ -30,6 +30,12 @@ OptionParser.new do |opts|
   end
   opts.on("--debug", "debug mode") do |v|
     options.debug = v
+  end
+  opts.on("--bundle", "bundle submission") do |v|
+    options.do_bundle = true
+  end
+  opts.on("--no-bundle", "do not bundle submission") do |v|
+    options.do_bundle = false
   end
 end.parse!
 
@@ -52,6 +58,7 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/i/image") do |cache|
   )
   generator = DLXS::CGI::Image.new context: context
   generator.export_submission
+  submission.bundle if options.do_bundle
 end
 
 

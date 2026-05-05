@@ -255,8 +255,8 @@ module DLXS
           )
         )
 
-        generate_image_file
-        generate_text_file
+        asset_file = generate_image_file
+        generate_text_file asset_file
 
         DOR::Event.new(
           event_type: "ing",
@@ -276,12 +276,14 @@ module DLXS
         asset_path = "#{@m_fn}.tif"
         @fileset_resource.add_file(
           asset_file = DOR::ResourceFile.new(
-            id: File.join(@resource.id, @m_fn),
-            parent: @resource.id,
-            content_path: "#{@m_fn}.tif",
+            id: File.join(@fileset_resource.id, asset_path),
+            parent: @fileset_resource.id,
+            content_path: asset_path,
             mime_type: "image/tiff",
             interaction_model: DOR::URN("file:image"),
             content: image_data,
+            function: [DOR::URN("function", "source")],
+            filename: asset_path,
             updated_at: @updated_at
           )
         )
@@ -311,9 +313,10 @@ module DLXS
           ],
           agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
         )
+        asset_file
       end
 
-      def generate_text_file
+      def generate_text_file(asset_file)
         if @pagetext_href.nil? || @pagetext_href.empty?
           return
         end
@@ -321,59 +324,71 @@ module DLXS
         pagetext_doc = Nokogiri::XML(pagetext_xml)  { |config| config.default_xml.noblanks }
         content = pagetext_doc.xpath('//tei:ResultFragment/tei:P', **NSMAP).map(&:inner_text).join("\n\n").strip
 
-        unless content.empty?
-          plaintext_asset = {
-            basename: @m_fn,
-            content: content,
-            producer: 'primeocr'
-          }
-
-          plaintext_path = DLXS::Utils::generate_plaintext(@fileset_resource.resource_path, plaintext_asset)
-
-          @fileset_resource.add_file(
-            plaintext_file = DOR::ResourceFile.new(
-              id: File.join(@fileset_resource.id, plaintext_path),
-              parent: @fileset_resource.id,
-              content_path: File.basename(plaintext_path),
-              mime_type: "text/plain",
-              interaction_model: DOR::URN("file", "text"),
-              updated_at: @updated_at,
-              filename: File.basename(plaintext_path),
-              function: [DOR::URN("function", "derived")]
-            )
-          )
-
-          plaintext_md_path = DLXS::Utils::generate_techmd(@fileset_resource.resource_path, plaintext_path)
-
-          @fileset_resource.add_file(
-            plaintext_md_file = DOR::ResourceFile.new(
-              id: File.join(@fileset_resource.id, plaintext_md_path),
-              parent: @fileset_resource.id,
-              content_path: File.basename(plaintext_md_path),
-              mime_type: "application/xml",
-              interaction_model: DOR::URN("metadata", "textmd"),
-              updated_at: @updated_at,
-              filename: File.basename(plaintext_md_path),
-              function: [DOR::URN("function", "technical")]
-            )
-          )
-
-          DOR::Event.new(
-            # id: DOR::calculate_uuid("#{asset[:basename]}.plaintext.mee", $default_uuid),
-            event_type: "mee",
-            date_time: @updated_at,
-            outcome: "success",
-            detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
-            objects: [ 
-              DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
-              DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
-            ],
-            agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
-          )
+        if content.empty?
+          return
         end
 
-      end
+        plaintext_asset = {
+          basename: @m_fn,
+          content: content,
+          producer: 'primeocr'
+        }
 
+        plaintext_path = DLXS::Utils::generate_plaintext(@fileset_resource.resource_path, plaintext_asset)
+
+        @fileset_resource.add_file(
+          plaintext_file = DOR::ResourceFile.new(
+            id: File.join(@fileset_resource.id, plaintext_path),
+            parent: @fileset_resource.id,
+            content_path: File.basename(plaintext_path),
+            mime_type: "text/plain",
+            interaction_model: DOR::URN("file", "text"),
+            updated_at: @updated_at,
+            filename: File.basename(plaintext_path),
+            function: [DOR::URN("function", "source"), DOR::URN("function", "service")]
+          )
+        )
+
+        DOR::Event.new(
+          event_type: "mee",
+          date_time: @updated_at,
+          outcome: "success",
+          detail: "Derived text from #{asset_file.filename} using PrimeOCR",
+          objects: [ 
+            DOR::Agent.new(identifier: asset_file.id, role: "src"),
+            DOR::Agent.new(identifier: plaintext_file.id, role: "out")
+          ],
+          agents: [ DOR::Agent.new(identifier: "https://www.primerecognition.com/prime_ocr.htm", role: "exe") ]
+        )
+
+        plaintext_md_path = DLXS::Utils::generate_techmd(@fileset_resource.resource_path, plaintext_path)
+
+        @fileset_resource.add_file(
+          plaintext_md_file = DOR::ResourceFile.new(
+            id: File.join(@fileset_resource.id, plaintext_md_path),
+            parent: @fileset_resource.id,
+            content_path: File.basename(plaintext_md_path),
+            mime_type: "application/xml",
+            interaction_model: DOR::URN("metadata", "textmd"),
+            updated_at: @updated_at,
+            filename: File.basename(plaintext_md_path),
+            function: [DOR::URN("function", "technical")]
+          )
+        )
+
+        DOR::Event.new(
+          # id: DOR::calculate_uuid("#{asset[:basename]}.plaintext.mee", $default_uuid),
+          event_type: "mee",
+          date_time: @updated_at,
+          outcome: "success",
+          detail: "Extracted technical metadata for #{plaintext_file.content_path} using jhove",
+          objects: [ 
+            DOR::Agent.new(identifier: plaintext_file.id, role: "src"),
+            DOR::Agent.new(identifier: plaintext_md_file.id, role: "out")
+          ],
+          agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
+        )
+      end
     end
 
   end

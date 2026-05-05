@@ -3,6 +3,7 @@ require 'securerandom'
 require 'builder'
 
 require 'zlib'
+require 'tty-command'
 
 module DOR
   module_function
@@ -98,6 +99,11 @@ module DOR
         f.puts "Agent-Name: Barbara Jensen"
         f.puts "Agent-Address: mailto:bjensen@umich.edu"
         f.puts "Version-Message: Migrating #{@local_identifier} from DLXS"
+      end
+
+      def bundle
+        cmd = TTY::Command.new(printer: :null)
+        cmd.run!("tar", "-cf", "#{@submission_path}.tar.gz", "-C", @output_path, @id)
       end
     end
   end

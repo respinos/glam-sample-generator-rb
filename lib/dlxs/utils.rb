@@ -90,7 +90,7 @@ module DLXS
         else "~md.unknown.xml"
         end
 
-      is_jhove_installed = cmd.run!("bash -c 'command -v exiftool'").success?
+      is_jhove_installed = cmd.run!("bash -c 'command -v jhove'").success?
       unless is_jhove_installed
         if asset_filename.end_with?(".tif")
           return generate_techmd_image(resource_path, asset_path, asset_filename, md_filename)

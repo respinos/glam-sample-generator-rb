@@ -353,8 +353,8 @@ module DLXS
           )
         )
         
-        generate_image_file
-        generate_text_file
+        asset_file = generate_image_file
+        generate_text_file(asset_file)
       end
 
       def generate_image_file
@@ -370,6 +370,7 @@ module DLXS
             interaction_model: DOR::URN("file:image"),
             content: image_data,
             filename: "#{@m_fn}.tif",
+            function: [DOR::URN("function", "source")],
             updated_at: @updated_at
           )
         )
@@ -399,9 +400,10 @@ module DLXS
           ],
           agents: [ DOR::Agent.new(identifier: "https://jhove.openpreservation.org/", role: "exe") ]
         )
+        asset_file
       end
 
-      def generate_text_file
+      def generate_text_file(asset_file)
         unless @slide_doc.xpath("//Field[@iiif-plaintext='true']").any?
           return
         end
@@ -452,6 +454,18 @@ module DLXS
             function: [DOR::URN("function", "service"), DOR::URN("function", "source")]
           )
         )
+
+        event = DOR::Event.new(
+          event_type: "exe",
+          date_time: @updated_at,
+          outcome: "success",
+          detail: "Crowd-sourced transcript from Zooniverse for #{asset_file.content_path}",
+          objects: [ 
+            DOR::Agent.new(identifier: asset_file.id, role: "src"),
+            DOR::Agent.new(identifier: plaintext_file.id, role: "out")
+          ],
+          agents: [ DOR::Agent.new(identifier: "https://www.zooniverse.org/", role: "exe") ]
+        )        
 
         plaintext_md_path = DLXS::Utils::generate_techmd(@fileset_resource.resource_path, plaintext_path)
 

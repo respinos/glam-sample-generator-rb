@@ -2,44 +2,15 @@
 
 require 'optparse'
 require 'ostruct'
-require 'nokogiri'
-require 'json'
-require 'http'
-require 'builder'
-require 'pp'
 
-require_relative '../lib/dor'
-require_relative '../lib/dor/headers'
 require_relative "../lib/dlxs"
 require_relative "../lib/dlxs/utils"
-require_relative "../lib/dlps_utils"
 require_relative "../lib/cache"
-
 require_relative '../lib/dlxs/cgi/text'
-
-# Register a custom function under a specific namespace URI
-Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new do
-  def hash_id(input)
-    # The input from XSLT is often a NodeSet or an Array; 
-    # we convert to string to hash it.
-    str = input.is_a?(Enumerable) ? input.first.to_s : input.to_s
-    STDERR.puts "== hashing #{str}"
-    DOR::to_xml_id(str.downcase)
-  end
-end)
-
-XPATH_FN_NS = "http://www.w3.org/2005/xpath-functions"
-QUI_NS = "http://dlxs.org/quombat/ui"
-TEI_NS = "http://www.tei-c.org/ns/1.0"
-NSMAP = {
-  'fn' => XPATH_FN_NS,
-  'qui' => QUI_NS,
-  'tei' => TEI_NS,
-  'glam' => "urn:umich:lib:dor:model:2026:resource:glam"
-}
 
 options = OpenStruct.new()
 options.dlxs_host = "quod.lib.umich.edu"
+options.do_bundle = true
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|
@@ -56,7 +27,16 @@ OptionParser.new do |opts|
   end
   opts.on("--host HOST", "DLXS host") do |c|
     options.dlxs_host = c
-  end  
+  end
+  opts.on("--debug", "debug mode") do |v|
+    options.debug = v
+  end
+  opts.on("--bundle", "bundle submission") do |v|
+    options.do_bundle = true
+  end
+  opts.on("--no-bundle", "do not bundle submission") do |v|
+    options.do_bundle = false
+  end
 end.parse!
 
 if options.partner.nil?
@@ -78,4 +58,5 @@ Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
   )
   generator = DLXS::CGI::Text.new(context: context)
   generator.export_submission
+  submission.bundle if options.do_bundle
 end
