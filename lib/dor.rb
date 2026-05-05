@@ -37,7 +37,6 @@ module DOR
 
   def generate_past_uuid7(time, seed: 2026)
     # Create a seeded pseudo-random number generator
-    STDERR.puts "::: ::: #{time} <- #{seed}"
     prng = Random.new(seed)
 
     # 1. Timestamp (48 bits / 12 hex chars)
@@ -211,7 +210,6 @@ module DOR
       @objects = objects
       @agents = agents
       @@events << self
-      STDERR.puts "-- #{@@events.size}"
     end
 
     def save!(event_filename)
