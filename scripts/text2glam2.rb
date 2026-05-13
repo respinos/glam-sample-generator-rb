@@ -10,7 +10,7 @@ require_relative '../lib/dlxs/cgi/text'
 
 options = OpenStruct.new()
 options.dlxs_host = "quod.lib.umich.edu"
-options.do_bundle = true
+options.do_bundle = false
 
 OptionParser.new do |opts|
   opts.on("-c", "--collid COLLID", "Collection ID") do |c|

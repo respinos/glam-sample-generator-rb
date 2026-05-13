@@ -66,7 +66,7 @@ module DLXS
         @partner = context.partner
         @m_id = context.m_id
         @cache = context.cache
-        @local_identifier = context.submission.id
+        @local_identifier = context.submission.local_identifier
       end
 
       def export_submission
@@ -121,8 +121,8 @@ module DLXS
       end
 
       def generate_slides
-        @source_metadata_sec = []
-        @service_metadata_sec = []
+        @source_metadata_sec = {}
+        @service_metadata_sec = {}
         extract_source_metadata
         slide_urls = extract_slide_urls
         slide_urls.each_with_index do |slide_url, index|
@@ -192,7 +192,7 @@ module DLXS
           next if field_el['iiif-plaintext'] == "true"
           source_md[abbrev] = get_field_value(field_el)
         end
-        @source_metadata_sec << source_md
+        @source_metadata_sec[source_md["$id"]] = source_md
       end
 
       def extract_slide_urls
@@ -236,7 +236,7 @@ module DLXS
             service_md[key] << value_el.text
           end
         end
-        @service_metadata_sec << service_md
+        @service_metadata_sec[service_md["$id"]] = service_md
 
         slide_md_el = @entry_doc.create_element("slide")
         slide_md_el['identifier'] = slide_identifier
@@ -254,7 +254,7 @@ module DLXS
           istruct_n += 1 unless source_md[abbrev].empty?
           slide_md_el << field_el.dup
         end
-        @source_metadata_sec << source_md unless istruct_n == 0
+        @source_metadata_sec[source_md["$id"]] = source_md unless istruct_n == 0
         @slides_el << slide_md_el unless istruct_n == 0
 
         # there is no asset attached to this slide

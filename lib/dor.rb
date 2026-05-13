@@ -69,7 +69,7 @@ module DOR
   end
 
   class Submission
-    attr_accessor :id, :data_path, :events_path, :submission_path
+    attr_accessor :id, :data_path, :events_path, :submission_path, :local_identifier
     def initialize(output_path:, local_identifier:)
       @output_path = output_path
       @local_identifier = local_identifier

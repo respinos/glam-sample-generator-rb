@@ -61,6 +61,7 @@ module DLXS
             id: File.join(@resource.id, tei_filename),
             parent: @resource.id,
             content_path: tei_filename,
+            filename: tei_filename,
             mime_type: "application/xml",
             interaction_model: DOR::URN("file", "tei"),
             function: DOR::URN("function", "source"),
@@ -95,13 +96,15 @@ module DLXS
 
         @encodingtype = @toc_doc.xpath("//qui:metadata[@slot='root']/@encoding-type").text
 
-        @metadata_sec = []
-        @metadata_sec << {
+        @metadata_sec = {}
+
+        md = {
           "$id": DOR::to_xml_id("#{@idno}#source"),
           "$node": @idno,
           "$function": [DOR::URN("function", "service")],
         }
-        @metadata_sec[0].merge!(@core_md)
+        md.merge!(@core_md)
+        @metadata_sec[md[:$id]] = md
       end
 
       def generate_resource
@@ -264,7 +267,7 @@ module DLXS
           outcome: "success",
           detail: "Submitted #{pending_id} for packaging",
           objects: [ 
-            DOR::Agent.new(identifier: pending_id, role: "src"),
+            DOR::Agent.new(identifier: asset_file.id, role: "src"),
           ],
           agents: [ DOR::Agent.new(identifier: "mailto:sooty@umich.edu", role: "imp") ]
         )        
