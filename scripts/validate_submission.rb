@@ -46,12 +46,15 @@ package_resources.each do |core_path|
   core_data = JSON.parse(File.read(File.join(resource_path, ".dor", "core.dor.json.json")), object_class: OpenStruct)
   soup_index = {}
   structure_path = nil
+  tei_path = nil
   header_files.each do |header_file|
     header_data = JSON.parse(File.read(header_file), object_class: OpenStruct)
     content_path = header_data.contentPath
     resource_file = File.join(resource_path, content_path)
     if content_path == "structure.dor.xml"
       structure_path = resource_file
+    elsif content_path.end_with?("tei.xml")
+      tei_path = resource_file
     end
     unless File.exist?(resource_file)
       puts "- missing #{content_path} : #{header_file}"
@@ -88,8 +91,30 @@ package_resources.each do |core_path|
   unless structure_path.nil?
     structure_doc = Nokogiri::XML(File.read(structure_path))
     structure_doc.xpath("//mets:div[@MDID]").each do |div_el|
-      unless soup_index.keys.include?(div_el['MDID'])
-        puts "- missing soup index for #{div_el['MDID']} : #{structure_path}"
+      div_el['MDID'].split(" ").each do |mdid|
+        unless soup_index.keys.include?(mdid)
+          puts "- missing soup index for #{mdid} : #{structure_path}"
+        end
+      end
+    end
+
+    unless tei_path.nil?
+      tei_doc = Nokogiri::XML(File.read(tei_path))
+      node_soup = {}
+      tei_doc.xpath("//node()[@glam:node]").each do |node_el|
+        node_soup[node_el['xml:id']] = true
+      end
+      structure_doc.xpath("//mets:area").each do |area_el|
+        node_begin = area_el['BEGIN']
+        node_end = area_el['END']
+        if node_soup[node_begin].nil?
+          puts "- missing TEI node for #{node_begin} : #{tei_path}"
+        end
+        unless node_end.nil?
+          if node_soup[node_end].nil?
+            puts "- missing TEI node for #{node_end} : #{tei_path}"
+          end
+        end      
       end
     end
   end

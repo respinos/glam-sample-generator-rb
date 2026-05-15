@@ -103,9 +103,6 @@
           </xsl:if>
           <xsl:value-of select="$mdid-service" />
         </xsl:attribute>
-        <xsl:attribute name="debug-fn">
-          <xsl:value-of select="$m_fn" />
-        </xsl:attribute>
         <mets:div TYPE="canvas">
           <mets:mptr LOCTYPE="URL" LOCREF="{$local_identifier}/{$m_fn}" />
         </mets:div>
