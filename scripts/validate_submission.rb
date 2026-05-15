@@ -44,10 +44,15 @@ package_resources.each do |core_path|
   resource_path = File.dirname(core_path)
   header_files = Dir.glob(File.join(resource_path, ".dor", "*")).select { |f| File.file?(f) }
   core_data = JSON.parse(File.read(File.join(resource_path, ".dor", "core.dor.json.json")), object_class: OpenStruct)
+  soup_index = {}
+  structure_path = nil
   header_files.each do |header_file|
     header_data = JSON.parse(File.read(header_file), object_class: OpenStruct)
     content_path = header_data.contentPath
     resource_file = File.join(resource_path, content_path)
+    if content_path == "structure.dor.xml"
+      structure_path = resource_file
+    end
     unless File.exist?(resource_file)
       puts "- missing #{content_path} : #{header_file}"
       next
@@ -69,7 +74,24 @@ package_resources.each do |core_path|
         puts "- missing function : #{header_file}"
       end
     end
+
+    if header_data.interactionModel.include?(":soup")
+      soup_data = JSON.parse(File.read(resource_file))
+      soup_data.keys.each do |key|
+        soup_index[key] = true
+      end
+    end
+
     package_identifiers << header_data.id
+  end
+  # STDERR.puts soup_index.keys.join("\n")
+  unless structure_path.nil?
+    structure_doc = Nokogiri::XML(File.read(structure_path))
+    structure_doc.xpath("//mets:div[@MDID]").each do |div_el|
+      unless soup_index.keys.include?(div_el['MDID'])
+        puts "- missing soup index for #{div_el['MDID']} : #{structure_path}"
+      end
+    end
   end
 end
 

@@ -134,8 +134,9 @@ module DLXS
             id: File.join(@resource.id, "#{@local_identifier}~md.service.json"),
             parent: @resource.id,
             content_path: "#{@local_identifier}~md.service.json",
+            filename: "#{@local_identifier}~md.service.json",
             mime_type: "application/json",
-            interaction_model: DOR::URN("metadata"),
+            interaction_model: DOR::URN("metadata", "soup"),
             function: [DOR::URN("function", "service")],
             updated_at: @updated_at,
             content: JSON.pretty_generate(@service_metadata_sec)
@@ -147,8 +148,9 @@ module DLXS
             id: File.join(@resource.id, "#{@local_identifier}~md.source.json"),
             parent: @resource.id,
             content_path: "#{@local_identifier}~md.source.json",
+            filename: "#{@local_identifier}~md.source.json",
             mime_type: "application/json",
-            interaction_model: DOR::URN("metadata"),
+            interaction_model: DOR::URN("metadata", "soup"),
             function: [DOR::URN("function", "source")],
             updated_at: @updated_at,
             content: JSON.pretty_generate(@source_metadata_sec)
@@ -185,6 +187,7 @@ module DLXS
         source_md["$id"] = DOR::to_xml_id("#{@local_identifier}#source")
         source_md["$node"] = @local_identifier
         source_md["$function"] = [DOR::URN("function", "source")]
+        source_md["$interactionModel"] = DOR::URN("metadata")
         @entry_doc.xpath("//Record[@name='entry']//Field").each do |field_el|
           abbrev = field_el['abbrev']
           next if abbrev.start_with?("istruct_")
@@ -226,6 +229,7 @@ module DLXS
         service_md["$id"] = DOR::to_xml_id("#{slide_identifier}#service")
         service_md["$node"] = slide_identifier
         service_md["$function"] = [DOR::URN("function", "service")]
+        service_md["$interactionModel"] = DOR::URN("metadata")
         service_md["dc.identifier"] = [slide_identifier]
         slide_doc.xpath("//Record[@name='special']//Field").each do |field_el|
           abbrev = field_el['abbrev']
@@ -246,6 +250,7 @@ module DLXS
         source_md["$id"] = DOR::to_xml_id("#{slide_identifier}#source")
         source_md["$node"] = slide_identifier
         source_md["$function"] = [DOR::URN("function", "source")]
+        source_md["$interactionModel"] = DOR::URN("metadata")
         istruct_n = 0
         slide_doc.xpath("//Record[@name='entry']//Field").each do |field_el|
           abbrev = field_el['abbrev']

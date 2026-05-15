@@ -46,7 +46,7 @@ end
 Random.srand(1001)
 
 Cache.new(options.collid, "https://#{options.dlxs_host}/cgi/t/text") do |cache|
-  local_identifier = "#{options.collid}.#{options.idno}"
+  local_identifier = options.idno
   submission = DOR::Submission.new(output_path: options.output_path, local_identifier: local_identifier)
   STDERR.puts ":: exporting to #{submission.submission_path}"
   context = DLXS::CGI::Context.new(

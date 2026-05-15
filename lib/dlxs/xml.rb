@@ -20,6 +20,7 @@ Nokogiri::XSLT.register("urn:umich:lib:dor:model:2026:resource:glam", Class.new 
     # The input from XSLT is often a NodeSet or an Array; 
     # we convert to string to hash it.
     str = input.is_a?(Enumerable) ? input.first.to_s : input.to_s
+    # STDERR.puts "--> #{str} -> #{DOR::to_xml_id(str)}"
     DOR::to_xml_id(str.downcase)
   end
 

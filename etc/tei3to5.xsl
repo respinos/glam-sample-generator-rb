@@ -79,17 +79,47 @@
         <!-- <xsl:message><xsl:value-of select="$p3" /> :: <xsl:value-of select="$p5" /></xsl:message> -->
         <xsl:element name="tei:{$p5}">
             <xsl:apply-templates select="@*" mode="copy" />
+            <xsl:choose>
+                <xsl:when test="normalize-space(@NODE)">
+                    <xsl:if test="not(@ID)">
+                        <xsl:apply-templates select="@NODE" mode="xmlidify" />
+                    </xsl:if>
+                    <xsl:if test="@ID">
+                        <xsl:apply-templates select="@ID" mode="copy-id" />
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:apply-templates select="@ID" mode="copy-id" />
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:apply-templates select="*|text()" mode="copy" />
         </xsl:element>
     </xsl:template>
 
     <xsl:template match="@NODE" mode="copy" priority="101">
+        <xsl:variable name="node" select="translate(., $uppercase, $lowercase)" />
         <xsl:attribute name="glam:node">
-            <xsl:value-of select="translate(., $uppercase, $lowercase)" />
+            <xsl:value-of select="$node" />
+        </xsl:attribute>
+    </xsl:template>
+
+    <xsl:template match="@NODE" mode="xmlidify" priority="100">
+        <xsl:variable name="node" select="translate(., $uppercase, $lowercase)" />
+        <xsl:attribute name="xml:id">
+            <xsl:value-of select="glam:hash_id(concat($node, '#source'))" />
         </xsl:attribute>
     </xsl:template>
 
     <xsl:template match="@ID" mode="copy" priority="101">
+    </xsl:template>
+
+    <xsl:template match="LANGUSAGE/@ID" mode="copy-id" priority="201">
+        <xsl:attribute name="xml:lang">
+            <xsl:value-of select="." />
+        </xsl:attribute>
+    </xsl:template>
+
+    <xsl:template match="@ID" mode="copy-id" priority="101">
         <xsl:attribute name="xml:id">
             <xsl:value-of select="concat('_', .)" />
         </xsl:attribute>

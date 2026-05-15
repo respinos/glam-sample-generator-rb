@@ -30,7 +30,7 @@ module DLXS
         @partner = context.partner
         @idno = context.idno
         @cache = context.cache
-        @local_identifier = context.submission.id
+        @local_identifier = context.submission.local_identifier
       end
 
       def export_submission
@@ -55,7 +55,7 @@ module DLXS
         tei_stylesheet = Nokogiri::XSLT(File.open("etc/tei3to5.xsl"))
         @teip5_doc = tei_stylesheet.transform(text_doc, Nokogiri::XSLT.quote_params({ "idno" => @idno, "encodingtype" => @encodingtype }))
 
-        tei_filename = "#{@idno}~md.tei.xml"
+        tei_filename = "#{@idno}.tei.xml"
         @resource.add_file(
           DOR::ResourceFile.new(
             id: File.join(@resource.id, tei_filename),
@@ -64,11 +64,57 @@ module DLXS
             filename: tei_filename,
             mime_type: "application/xml",
             interaction_model: DOR::URN("file", "tei"),
-            function: DOR::URN("function", "source"),
+            function: [DOR::URN("function", "source")],
             updated_at: @updated_at,
             content: @teip5_doc.to_xml
           )
-        )        
+        )
+
+        if @teip5_doc.at_xpath("//tei:editorialdecl/@n", **NSMAP)&.value != "1"
+          @teip5_doc.xpath("//tei:body//node()[tei:bibl|tei:head|@type]", **NSMAP).each do |div1_el|
+            # extract the service metadata for each div1
+            ## STDERR.puts "### #{div1_el.name} : #{div1_el['glam:node']} -> #{DOR::to_xml_id("#{div1_el['glam:node']}#service")}"
+            node_md = {}
+            node_md["dc.identifier.section"] = [div1_el['glam:node']]
+            if div1_el.at_xpath("tei:bibl", **NSMAP)
+              node_md["dc.title.section"] = [div1_el.at_xpath("tei:bibl/tei:title", **NSMAP)&.text]
+              citation = []
+              [['vol', 'Volume'], ['iss', 'Issue']].each do |attr, label|
+                bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
+                citation << "#{label} #{bibl_el.text}" if bibl_el
+              end
+              date = []
+              [ 'mo', 'year' ].each do |attr|
+                bibl_el = div1_el.at_xpath("tei:bibl/tei:biblScope[@type='#{attr}']", **NSMAP)
+                date << bibl_el.text if bibl_el
+              end
+              citation << date.join(" ") unless date.empty?
+              node_md["dcterms.bibliographicCitation"] = [citation.join(", ")]
+            elsif div1_el.at_xpath("tei:head", **NSMAP)
+              node_type = "section" # div1_el['type'].downcase
+              node_md["dc.title.#{node_type}"] = [div1_el.at_xpath("tei:head", **NSMAP)&.text]
+            elsif div1_el.name.start_with?("div") and ! div1_el['type'].nil? and ! div1_el['type'].empty?
+              # STDERR.puts div1_el.to_xml
+              node_type = "section" # div1_el['type'].downcase
+              node_md["dc.title.#{node_type}"] = [div1_el['type']]
+            else
+              STDERR.puts "WTF: #{div1_el.name} : #{div1_el['glam:node']}"
+              next
+            end
+            unless div1_el['type'].nil? or div1_el['type'].empty?
+              node_type = div1_el['type']
+              node_md["dc.type.section"] = node_type
+            end
+
+            other_md = {}
+            other_md["$id"] = DOR::to_xml_id("#{div1_el['glam:node']}#service")
+            other_md["$node"] = div1_el['glam:node']
+            other_md["$function"] = [DOR::URN("function", "service")]
+            other_md["$interactionModel"] = DOR::URN("metadata")
+            other_md.merge!(node_md)
+            @metadata_sec[other_md["$id"]] = other_md
+          end
+        end
       end
 
       def extract_core_metadata
@@ -99,9 +145,10 @@ module DLXS
         @metadata_sec = {}
 
         md = {
-          "$id": DOR::to_xml_id("#{@idno}#source"),
+          "$id": DOR::to_xml_id("#{@idno}#service"),
           "$node": @idno,
           "$function": [DOR::URN("function", "service")],
+          "$interactionModel": DOR::URN("metadata"),
         }
         md.merge!(@core_md)
         @metadata_sec[md[:$id]] = md
@@ -133,6 +180,20 @@ module DLXS
         if has_images?
           generate_filesets
         end
+
+        @resource.add_file(
+          DOR::ResourceFile.new(
+            id: File.join(@resource.id, "#{@local_identifier}~md.service.json"),
+            parent: @resource.id,
+            content_path: "#{@local_identifier}~md.service.json",
+            filename: "#{@local_identifier}~md.service.json",
+            mime_type: "application/json",
+            interaction_model: DOR::URN("file", "soup"),
+            function: [DOR::URN("function", "service")],
+            updated_at: @updated_at,
+            content: JSON.pretty_generate(@metadata_sec)
+          )
+        )
 
         DOR::Event.new(
           event_type: "ing",

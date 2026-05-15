@@ -149,7 +149,7 @@ module DOR
           datum[:filename] = resource_file.filename
         end
         datum[:digests] = []
-        datum[:updated] = resource_file.updated_at
+        datum[:updatedAt] = resource_file.updated_at
         datum[:deleted] = false
         datum[:visibility] = "visible"
         datum[:contentPath] = resource_file.content_path
